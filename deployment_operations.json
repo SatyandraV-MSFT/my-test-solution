@@ -1,0 +1,31 @@
+[
+  {
+    "id": "/subscriptions/88de152c-a15d-4809-a8a5-ea681dc6c15c/resourceGroups/core-rg-sbx/providers/Microsoft.Resources/deployments/core-kv-sbx-savishwa/operations/2BE423DFE602A4D5",
+    "operationId": "2BE423DFE602A4D5",
+    "properties": {
+      "provisioningOperation": "Create",
+      "provisioningState": "Succeeded",
+      "timestamp": "2022-04-26T10:41:57.3271001Z",
+      "duration": "PT31.2299908S",
+      "trackingId": "6d1d4039-3d90-4297-a2d6-0456cadadc07",
+      "statusCode": "OK",
+      "targetResource": {
+        "id": "/subscriptions/88de152c-a15d-4809-a8a5-ea681dc6c15c/resourceGroups/core-rg-sbx/providers/Microsoft.KeyVault/vaults/core-kv-sbx-savishwa",
+        "resourceType": "Microsoft.KeyVault/vaults",
+        "resourceName": "core-kv-sbx-savishwa"
+      }
+    }
+  },
+  {
+    "id": "/subscriptions/88de152c-a15d-4809-a8a5-ea681dc6c15c/resourceGroups/core-rg-sbx/providers/Microsoft.Resources/deployments/core-kv-sbx-savishwa/operations/08585506372047697767",
+    "operationId": "08585506372047697767",
+    "properties": {
+      "provisioningOperation": "EvaluateDeploymentOutput",
+      "provisioningState": "Succeeded",
+      "timestamp": "2022-04-26T10:41:57.4020309Z",
+      "duration": "PT31.3049216S",
+      "trackingId": "f73d9444-4abc-44df-9e46-890c831db0e9",
+      "statusCode": "OK"
+    }
+  }
+]

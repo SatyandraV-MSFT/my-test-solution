@@ -1,0 +1,148 @@
+{
+  "id": "/subscriptions/88de152c-a15d-4809-a8a5-ea681dc6c15c/resourceGroups/core-rg-sbx/providers/Microsoft.Resources/deployments/core-kv-sbx-savishwa",
+  "name": "core-kv-sbx-savishwa",
+  "type": "Microsoft.Resources/deployments",
+  "tags": {
+    "primaryResourceId": "/subscriptions/88de152c-a15d-4809-a8a5-ea681dc6c15c/resourceGroups/core-rg-sbx/providers/Microsoft.KeyVault/vaults/core-kv-sbx-savishwa",
+    "marketplaceItemId": "Microsoft.KeyVault"
+  },
+  "properties": {
+    "templateHash": "14708323031441021505",
+    "parameters": {
+      "name": {
+        "type": "String",
+        "value": "core-kv-sbx-savishwa"
+      },
+      "location": {
+        "type": "String",
+        "value": "centralus"
+      },
+      "sku": {
+        "type": "String",
+        "value": "Standard"
+      },
+      "accessPolicies": {
+        "type": "Array",
+        "value": [
+          {
+            "objectId": "e21b3a10-720e-45ef-80aa-1872bef8383b",
+            "tenantId": "72f988bf-86f1-41af-91ab-2d7cd011db47",
+            "permissions": {
+              "keys": [
+                "Get",
+                "List",
+                "Update",
+                "Create",
+                "Import",
+                "Delete",
+                "Recover",
+                "Backup",
+                "Restore",
+                "GetRotationPolicy",
+                "SetRotationPolicy",
+                "Rotate"
+              ],
+              "secrets": [
+                "Get",
+                "List",
+                "Set",
+                "Delete",
+                "Recover",
+                "Backup",
+                "Restore"
+              ],
+              "certificates": [
+                "Get",
+                "List",
+                "Update",
+                "Create",
+                "Import",
+                "Delete",
+                "Recover",
+                "Backup",
+                "Restore",
+                "ManageContacts",
+                "ManageIssuers",
+                "GetIssuers",
+                "ListIssuers",
+                "SetIssuers",
+                "DeleteIssuers"
+              ]
+            },
+            "applicationId": ""
+          }
+        ]
+      },
+      "tenant": {
+        "type": "String",
+        "value": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+      },
+      "enabledForDeployment": {
+        "type": "Bool",
+        "value": false
+      },
+      "enabledForTemplateDeployment": {
+        "type": "Bool",
+        "value": false
+      },
+      "enabledForDiskEncryption": {
+        "type": "Bool",
+        "value": false
+      },
+      "enableRbacAuthorization": {
+        "type": "Bool",
+        "value": false
+      },
+      "publicNetworkAccess": {
+        "type": "String",
+        "value": "Enabled"
+      },
+      "enableSoftDelete": {
+        "type": "Bool",
+        "value": true
+      },
+      "softDeleteRetentionInDays": {
+        "type": "Int",
+        "value": 90
+      },
+      "networkAcls": {
+        "type": "Object",
+        "value": {
+          "defaultAction": "allow",
+          "bypass": "AzureServices",
+          "ipRules": [],
+          "virtualNetworkRules": []
+        }
+      }
+    },
+    "mode": "Incremental",
+    "debugSetting": {
+      "detailLevel": "None"
+    },
+    "provisioningState": "Succeeded",
+    "timestamp": "2022-04-26T10:41:57.421256Z",
+    "duration": "PT33.9956771S",
+    "correlationId": "bb68b0c8-a144-4dad-ae23-faff364a576c",
+    "providers": [
+      {
+        "namespace": "Microsoft.KeyVault",
+        "resourceTypes": [
+          {
+            "resourceType": "vaults",
+            "locations": [
+              "centralus"
+            ]
+          }
+        ]
+      }
+    ],
+    "dependencies": [],
+    "outputs": {},
+    "outputResources": [
+      {
+        "id": "/subscriptions/88de152c-a15d-4809-a8a5-ea681dc6c15c/resourceGroups/core-rg-sbx/providers/Microsoft.KeyVault/vaults/core-kv-sbx-savishwa"
+      }
+    ],
+    "validationLevel": "Template"
+  }
+}
