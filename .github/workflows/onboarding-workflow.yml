@@ -18,15 +18,9 @@ on:
           - avm/res/container-service/managed-cluster
           - storage/storage-account/0.14.3
 
-      version:
-        type: string
-        description: 'Specify the version (e.g., 0.5.0 , 0.5.1 etc)'
-        required: true
-
 jobs:
   OnboardModule:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout the main branch
         uses: actions/checkout@v4
@@ -69,8 +63,6 @@ jobs:
             Write-Error "Error: Source directory '$SOURCE_DIR' does not exist."
             exit 1
           }
-
-          Write-Output "Listing copied files in destination directory:"
           Get-ChildItem -Path $DEST_DIR -Recurse
 
       - name: Create a feature branch
