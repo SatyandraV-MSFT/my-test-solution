@@ -30,7 +30,6 @@ jobs:
     steps:
       - name: Checkout the main branch
         uses: actions/checkout@v4
-
       # Checkout the specific module tag from the external repository
       - name: Checkout external repository with the specified version tag
         uses: actions/checkout@v4
@@ -38,44 +37,53 @@ jobs:
           repository: Azure/bicep-registry-modules
           ref: refs/tags/avm/res/${{ github.event.inputs.module }}
           path: bicep-registry-modules
-
       - name: Set up Git
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@gtest.com"
       - name: Copy selected module
+        shell: pwsh
         run: |
-          MODULE_NAME="${{ github.event.inputs.module }}"
-          VERSION="${{ github.event.inputs.version }}"
-          # Extract ResourceProvider and Resource from the module path
-          RESOURCE_PROVIDER=$(echo "$MODULE_NAME" | cut -d'/' -f3)  # Extract the third part of the path (network in this case)
-          RESOURCE=$(echo "$MODULE_NAME" | cut -d'/' -f4)           # Extract the fourth part of the path (e.g., subnet, private-endpoint)
+          $MODULE_NAME = ${{ github.event.inputs.module }}"
+          # Extract ResourceProvider and Resource from the module path          
+          $RESOURCE_PROVIDER = $MODULE_NAME.Split('/')[0]  # Extract the third part of the path (network in this case)
+          $RESOURCE = $MODULE_NAME.Split('/')[1]           # Extract the fourth part of the path (e.g., subnet, private-endpoint)
+          $VERSION = $MODULE_NAME.Split('/')[2]
+          echo "MODULE_VERSION=$VERSION" >> $GITHUB_ENV
+
           # Correct the source and destination directories
-          SOURCE_DIR="bicep-registry-modules/$MODULE_NAME"
-          DEST_DIR="elements/res/$RESOURCE_PROVIDER/$RESOURCE"
-          echo "Copying module from: $SOURCE_DIR to: $DEST_DIR"
-          mkdir -p "$DEST_DIR"  # Create the destination directory structure
+          $SOURCE_DIR = "bicep-registry-modules/avm/res/$RESOURCE_PROVIDER/$RESOURCE"
+          $DEST_DIR = "elements/res/$RESOURCE_PROVIDER/$RESOURCE"
+          echo "MODULE_FULL_NAME=$DEST_DIR" >> $GITHUB_ENV
+          Write-Output "Copying module from: $SOURCE_DIR to: $DEST_DIR"
+
+          # Create the destination directory structure
+          New-Item -ItemType Directory -Force -Path $DEST_DIR
+
           # Check if the source directory exists in the external repo
-          if [ -d "$SOURCE_DIR" ]; then
-            cp -r "$SOURCE_DIR/"* "$DEST_DIR"/  # Copy contents to destination
-            echo "Copy completed successfully."
-          else
-            echo "Error: Source directory '$SOURCE_DIR' does not exist."
+          if (Test-Path -Path $SOURCE_DIR) {
+            Copy-Item -Path "$SOURCE_DIR\*" -Destination $DEST_DIR -Recurse -Force
+            Write-Output "Copy completed successfully."
+            New-Item -ItemType Directory -Force -Path "bicep-registry"
+          } else {
+            Write-Error "Error: Source directory '$SOURCE_DIR' does not exist."
             exit 1
-          fi
-          echo "Listing copied files in destination directory:"
-          ls -laR "$DEST_DIR"
+          }
+
+          Write-Output "Listing copied files in destination directory:"
+          Get-ChildItem -Path $DEST_DIR -Recurse
+
       - name: Create a feature branch
         run: |
-          git checkout -b feature/onboard/${{ github.event.inputs.module }}
+          git checkout -b feature/onboard-avm/res/${{ env.MODULE_FULL_NAME }}
       - name: Add and commit changes
         run: |
-          git add "elements/res/${{ github.event.inputs.module }}"
-          git commit -m "Onboard module: $MODULE_NAME - Version: $VERSION" || echo "No changes to commit"
+          git add "elements/res/${{ env.MODULE_FULL_NAME }}"
+          git commit -m "Onboard module: $${{ env.MODULE_FULL_NAME }} - Version: $MODULE_VERSION" || echo "No changes to commit"
       - name: Push to remote
         run: |
-          git push origin feature/onboard/${{ github.event.inputs.module }}
+          git push origin feature/onboard-avm/res/${{ env.MODULE_FULL_NAME }}
       - name: Checkout the feature branch
         uses: actions/checkout@v4
         with:
-          ref: feature/onboard/${{ github.event.inputs.module }}
+          ref: feature/onboard-avm/res/${{ env.MODULE_FULL_NAME }}
