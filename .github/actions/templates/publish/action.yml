@@ -58,6 +58,7 @@ runs:
           az bicep publish \
             --file "$BICEP_FILE" \
             --target "br:$ACR_NAME.azurecr.io/$MODULE_DIR:$VERSION"
+            --force
         done
 
     - name: Set publish status
