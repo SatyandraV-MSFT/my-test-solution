@@ -5,7 +5,7 @@ on:
     inputs:
       module:
         type: choice
-        description: 'Select the module'
+        description: 'Select the module/version to onboard'
         required: true
         options:
           - avm/res/network/network-security-group
@@ -16,6 +16,7 @@ on:
           - avm/res/kubernetes-configuration/extension
           - avm/res/storage/storage-account
           - avm/res/container-service/managed-cluster
+          - storage/storage-account/0.14.3
 
       version:
         type: string
@@ -35,20 +36,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: Azure/bicep-registry-modules
-          ref: refs/tags/${{ github.event.inputs.module }}/${{ github.event.inputs.version }}
+          ref: refs/tags/avm/res/${{ github.event.inputs.module }}
           path: bicep-registry-modules
 
       - name: Set up Git
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@gtest.com"
-      - name: Clear destination directory
-        run: |
-          MODULE_NAME="${{ github.event.inputs.module }}"
-          DEST_BASE="elements/res"  # Updated base directory
-          # Clear destination directory before copying new module
-          echo "Cleaning up destination directory: $DEST_BASE"
-          rm -rf "$DEST_BASE"  # Clean up the entire res directory
       - name: Copy selected module
         run: |
           MODULE_NAME="${{ github.event.inputs.module }}"
@@ -73,15 +67,15 @@ jobs:
           ls -laR "$DEST_DIR"
       - name: Create a feature branch
         run: |
-          git checkout -b feature/onboard-${{ github.event.inputs.module }}-${{ github.event.inputs.version }}
+          git checkout -b feature/onboard/${{ github.event.inputs.module }}
       - name: Add and commit changes
         run: |
-          git add "elements/res/${RESOURCE_PROVIDER}/${RESOURCE_NAME}"
+          git add "elements/res/${{ github.event.inputs.module }}"
           git commit -m "Onboard module: $MODULE_NAME - Version: $VERSION" || echo "No changes to commit"
       - name: Push to remote
         run: |
-          git push origin feature/onboard-${{ github.event.inputs.module }}-${{ github.event.inputs.version }}
+          git push origin feature/onboard/${{ github.event.inputs.module }}
       - name: Checkout the feature branch
         uses: actions/checkout@v4
         with:
-          ref: feature/onboard-${{ github.event.inputs.module }}-${{ github.event.inputs.version }}
+          ref: feature/onboard/${{ github.event.inputs.module }}

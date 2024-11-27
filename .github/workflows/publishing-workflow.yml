@@ -103,7 +103,7 @@ jobs:
       - name: Publish Bicep Modules to ACR
         uses: ./.github/actions/templates/publish
         with:
-          acr_name: "Pxsmytinfsweacr1"
+          acr_name: "savishwapxslabacr01"
           base_module_path: "${{ env.module_name }}"
           version: ${{ env.version }}
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
