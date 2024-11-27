@@ -20,6 +20,15 @@ inputs:
     description: 'Set "true" to set module up for removal'
     default: "true"
     required: false
+  azure_client_id:
+    description: "Az Auth: Azure client ID"
+    required: true
+  azure_tenant_id:
+    description: "Az Auth: Azure tenant ID"
+    required: true
+  azure_subscription_id:
+    description: "Az Auth: Azure subscription ID"
+    required: true
 
 outputs:
   deployed_rg_name:
@@ -29,22 +38,13 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout the feature branch
-      uses: actions/checkout@v4
-      with:
-        ref: ${{ github.head_ref }}
-        fetch-depth: 1
-        clean: true
-
     - name: Login to Azure
       uses: azure/login@v2
       with:
-        client-id: ${{ env.AZURE_CLIENT_ID }}
-        tenant-id: ${{ env.AZURE_TENANT_ID }}
-        subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
-        enable-AzPSSession: false
-        environment: azurecloud
-        auth-type: SERVICE_PRINCIPAL
+        client-id: ${{ inputs.azure_client_id }}
+        tenant-id: ${{ inputs.azure_tenant_id }}
+        subscription-id: ${{ inputs.azure_subscription_id }}
+        enable-AzPSSession: true
 
     - name: Deploy Bicep Template
       id: deploy_bicep
