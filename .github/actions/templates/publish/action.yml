@@ -48,18 +48,30 @@ runs:
         ACR_NAME: ${{ inputs.acr_name }}
         BASE_MODULE_PATH: ${{ inputs.base_module_path }}
         VERSION: ${{ inputs.version }}
-      shell: bash
+      shell: pwsh
       run: |
+        # Split the version into its components
+        $versionComponents = $env:VERSION -split '\.'
+        $majorVersion = [int]$versionComponents[0]
+        $minorVersion = [int]$versionComponents[1]
+        $patchVersion = [int]$versionComponents[2]
+
+        # Increment the patch version
+        $newPatchVersion = $patchVersion + 1
+        $newVersion = "$majorVersion.$minorVersion.$newPatchVersion"
+
+        Write-Output "Incremented version to: $newVersion"
+
         # Find all main.bicep files in the specified directory structure
-        find "$BASE_MODULE_PATH" -type f -name "main.bicep" | while read -r BICEP_FILE; do
-          MODULE_DIR=$(dirname "$BICEP_FILE")
-          echo "Publishing module at path: $MODULE_DIR"
-          # Publish the Bicep file to ACR with the directory structure and version
-          az bicep publish \
-            --file "$BICEP_FILE" \
-            --target "br:$ACR_NAME.azurecr.io/$MODULE_DIR:$VERSION"
-            --force
-        done
+        Get-ChildItem -Path $env:BASE_MODULE_PATH -Recurse -Filter "main.bicep" | ForEach-Object {
+            $bicepFile = $_.FullName
+            $moduleDir = $_.DirectoryName
+
+            Write-Output "Publishing module at path: $moduleDir"
+
+            # Publish the Bicep file to ACR with the directory structure and version
+            az bicep publish --file $bicepFile --target "br:$($env:ACR_NAME).azurecr.io/$moduleDir:$newVersion" --force
+        }
 
     - name: Set publish status
       shell: bash
