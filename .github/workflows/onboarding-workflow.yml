@@ -58,7 +58,7 @@ jobs:
           if (Test-Path -Path $SOURCE_DIR) {
             Copy-Item -Path "$SOURCE_DIR\*" -Destination $DEST_DIR -Recurse -Force
             Write-Output "Copy completed successfully."
-            Remove-Item -Force -Path "bicep-registry" -Confirm:$false
+            Remove-Item -Force -Path "bicep-registry-modules" -Confirm:$false
           } else {
             Write-Error "Error: Source directory '$SOURCE_DIR' does not exist."
             exit 1
