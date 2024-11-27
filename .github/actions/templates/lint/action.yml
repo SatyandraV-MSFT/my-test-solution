@@ -1,0 +1,43 @@
+name: Lint Code
+description: Lint code using GitHub Super Linter with selective validation
+
+inputs:
+  module_path:
+    description: "Path to the module in feature branch"
+    required: true
+  github_token:
+    description: "GitHub token for authentication"
+    required: true
+  validate_markdown:
+    description: "Toggle markdown validation based on input"
+    required: false
+    default: "true"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref }}
+
+    - name: Set dynamic path for linting
+      shell: bash
+      run: |
+        MODULE_PATH="${{ inputs.module_path }}"
+        echo "Module path for linting: $MODULE_PATH"
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: "20"
+
+    - name: Lint Codebase with Super Linter
+      uses: github/super-linter@v5
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        VALIDATE_ALL_CODEBASE: true # Validate the entire codebase
+        DISABLE_ALL_LINTERS: false # Enable all linters by default
+        DISABLE_LINTERS: "ARM,NATURAL_LANGUAGE" # Disable only ARM and Natural Language linters
+        VALIDATE_MARKDOWN: ${{ inputs.validate_markdown }} # Enable Markdown validation based on input
+        VALIDATE_GITHUB_ACTIONS: true # Enable GitHub Actions linter

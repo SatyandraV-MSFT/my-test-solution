@@ -1,0 +1,52 @@
+name: Element - Module Issue ➕🐛🔒
+description: Want to request a new Module feature or report a bug? Let us know!
+title: "[Element Module Issue]: "
+labels: ["Needs: Triage :mag:"]
+projects: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for submitting this Element Module Issue! To help us triage your issue, please provide the below details.
+
+  - type: checkboxes
+    id: existing-checks
+    attributes:
+      label: Check for previous/existing GitHub issues
+      description: By submitting this issue, you confirm that you have [searched for previous/existing GitHub issues](https://aka.ms/BRM/TypeElement) to avoid creating a duplicate.
+      options:
+        - label: I have checked for previous/existing GitHub issues
+          required: true
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue Type?
+      description: How would you best describe this issue? Is this a...
+      options:
+        - "Feature Request"
+        - "Bug"
+        - "Security Bug"
+        - "I'm not sure"
+    validations:
+      required: true
+  - type: input
+    id: module-name-input
+    attributes:
+      label: Module Name
+      description: Which existing Element module is this issue related to?
+    validations:
+      required: true
+  - type: input
+    id: module-version
+    attributes:
+      label: (Optional) Module Version
+      description: Please provide which version(s) of the module does this issue apply to.
+    validations:
+      required: false
+  - type: textarea
+    id: question-feedback-text
+    attributes:
+      label: Description
+      description: Please describe the issue!
+    validations:
+      required: true

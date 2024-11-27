@@ -1,0 +1,32 @@
+name: "Remove Resource Group"
+description: "Clean up resources deployed for testing"
+
+inputs:
+  resource_group_name:
+    description: "Resource Group Name to remove"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Login to Azure
+      uses: azure/login@v2
+      with:
+        client-id: ${{ env.AZURE_CLIENT_ID }}
+        tenant-id: ${{ env.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        enable-AzPSSession: false
+        environment: azurecloud
+        auth-type: SERVICE_PRINCIPAL
+
+    - name: Cleanup Resource Group
+      shell: bash
+      env:
+        RESOURCE_GROUP_NAME: ${{ inputs.resource_group_name }}
+      run: |
+        if [ -n "$RESOURCE_GROUP_NAME" ]; then
+          echo "Cleaning up Resource Group: $RESOURCE_GROUP_NAME"
+          az group delete --name "$RESOURCE_GROUP_NAME" --yes --no-wait
+        else
+          echo "No resource group to delete."
+        fi

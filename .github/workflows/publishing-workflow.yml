@@ -1,0 +1,92 @@
+name: publishing-workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      removeDeployment:
+        type: boolean
+        description: "Remove deployed module"
+        required: false
+        default: true
+  pull_request:
+    branches:
+      - "main"
+    paths:
+      - "elements/res/**"
+      - "!utilities/**"
+      - "!*/**/README.md"
+
+permissions:
+  id-token: write
+  contents: read
+  statuses: write
+
+
+jobs:
+  deploy-publish-job:
+    runs-on: ubuntu-latest
+    environment: sandbox
+
+    env:
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      BRANCH_NAME: ${{ github.ref_name }}
+
+    steps:
+      - name: Checkout the feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Read module metadata
+        run: |
+          # Determine the branch path based on the event type
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            BRANCH_PATH="${{ github.head_ref }}"
+          else
+            BRANCH_PATH="${{ github.ref_name }}"
+          fi
+          echo "BRANCH_PATH: $BRANCH_PATH"
+
+          # Extract the module path by removing the version part from the branch name
+          MODULE_PATH=$(echo "$BRANCH_PATH" | sed -E 's|feature/onboard-avm/||; s|-[0-9]+\.[0-9]+\.[0-9]+$||')
+          METADATA_FILE="elements/${MODULE_PATH}/metadata.json"
+          echo "Looking for metadata file at $METADATA_FILE"
+
+          if [ -f "$METADATA_FILE" ]; then
+            MODULE_NAME=$(jq -r '.module_name' "$METADATA_FILE")
+            VERSION=$(jq -r '.version' "$METADATA_FILE")
+            echo "module_name=$MODULE_NAME" >> $GITHUB_ENV
+            echo "version=$VERSION" >> $GITHUB_ENV
+          else
+            echo "Error: Metadata file not found at $METADATA_FILE"
+            exit 1
+          fi
+
+      - name: Deploy Bicep Template
+        id: deploy
+        uses: ./.github/actions/templates/deploy
+        with:
+          module_name: ${{ env.module_name }}
+          test_subdir: "tests/e2e/defaults"
+          file_name: "main.test.bicep"
+          region: "centralindia"
+          azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Publish Bicep Modules to ACR
+        uses: ./.github/actions/templates/publish
+        with:
+          acr_name: "Pxsmytinfsweacr1"
+          base_module_path: "${{ env.module_name }}"
+          version: ${{ env.version }}
+
+      - name: Remove Deployment
+        uses: ./.github/actions/templates/remove
+        with:
+          resource_group_name: ${{ steps.deploy.outputs.deployed_rg_name }}
+          azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}

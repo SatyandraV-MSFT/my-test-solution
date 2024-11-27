@@ -1,0 +1,43 @@
+name: "Deploy Bicep Template"
+description: "Deploy a Bicep template to Azure and output the resource group name"
+
+inputs:
+  module_name:
+    description: "Specify the module path (e.g., avm/res/network/network-security-group)"
+    required: true
+  test_subdir:
+    description: "Specify the test subdirectory (e.g., tests/e2e/defaults)"
+    required: true
+  file_name:
+    description: "Specify the Bicep file name"
+    required: true
+    default: "main.test.bicep"
+  region:
+    description: "Deployment region (e.g., westeurope)"
+    required: false
+    default: "westeurope"
+
+outputs:
+  deployed_rg_name:
+    description: "The name of the deployed resource group"
+    value: ${{ env.deployed_rg_name }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout the feature branch
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref }}
+        fetch-depth: 1
+        clean: true
+
+    - name: Validate Deployment with What-If
+      shell: bash
+      env:
+        TEMPLATE_PATH: "${{ inputs.module_name }}/${{ inputs.test_subdir }}/${{ inputs.file_name }}"
+      run: |
+        echo "Using template path: $TEMPLATE_PATH"
+        az deployment sub what-if \
+          --location "${{ inputs.region }}" \
+          --template-file "${{ github.workspace }}/$TEMPLATE_PATH"

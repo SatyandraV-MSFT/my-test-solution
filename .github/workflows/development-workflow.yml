@@ -1,0 +1,117 @@
+name: development-workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      removeDeployment:
+        type: boolean
+        description: "Remove deployed module"
+        required: false
+        default: true
+  push:
+    branches:
+      - "feature/onboard-avm/**"
+    paths:
+      - "elements/res/**"
+      - ".github/workflows/development-workflow.yml"
+      - "!utilities/**"
+      - "!*/**/README.md"
+
+permissions:
+  id-token: write
+  contents: read
+  statuses: write
+
+jobs:
+  check-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if Pull Request Exists
+        id: check_pr
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: pullRequests } = await github.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              head: `${context.repo.owner}:${github.ref.replace('refs/heads/', '')}`
+            });
+            return pullRequests.length > 0;
+
+  Lint-Test-Deploy-job:
+    needs: check-pr
+    runs-on: ubuntu-latest
+    if: ${{ steps.check_pr.outputs.result == 'false' }} || github.event_name == 'workflow_dispatch'
+    environment: sandbox
+    env:
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      BRANCH_NAME: ${{ github.ref_name }}
+    steps:
+      - name: Extract module name and version from branch
+        id: extract_vars
+        run: |
+          BRANCH_NAME="${{ env.BRANCH_NAME }}"
+          MODULE_NAME=$(echo "$BRANCH_NAME" | sed -E 's|feature/onboard-avm/(.+)-[0-9]+\.[0-9]+\.[0-9]+|\1|')
+          VERSION=$(echo "$BRANCH_NAME" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          echo "Extracted MODULE_NAME: $MODULE_NAME"
+          echo "Extracted VERSION: $VERSION"
+          echo "module_name=elements/${MODULE_NAME}" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_ENV
+
+      - name: Checkout the feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Commit specific module changes
+        run: |
+          MODULE_NAME="${{ env.module_name }}"
+          echo "Adding and committing changes for module: $MODULE_NAME"
+
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@gtest.com"
+
+          # Check if there are any changes before committing
+          git add $MODULE_NAME
+          if ! git diff-index --quiet HEAD; then
+            git commit -m "Updating module: $MODULE_NAME"
+            git push origin ${{ github.ref_name }}
+          else
+            echo "No changes detected. Skipping commit and push."
+          fi
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ env.AZURE_CLIENT_ID }}
+          tenant-id: ${{ env.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          enable-AzPSSession: false
+          environment: azurecloud
+          auth-type: SERVICE_PRINCIPAL
+
+      - name: What-If Validation Template
+        uses: ./.github/actions/templates/validation
+        with:
+          module_name: ${{ env.module_name }}
+          test_subdir: "tests/e2e/defaults"
+          file_name: "main.test.bicep"
+          region: "centralindia"
+          azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy Bicep Template
+        uses: ./.github/actions/templates/deploy
+        with:
+          module_name: ${{ env.module_name }}
+          test_subdir: "tests/e2e/defaults"
+          file_name: "main.test.bicep"
+          region: "centralindia"
+          azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          removeDeployment: "${{ inputs.removeDeployment }}"

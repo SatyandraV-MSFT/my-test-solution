@@ -1,0 +1,87 @@
+name: onboarding-workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      module:
+        type: choice
+        description: 'Select the module'
+        required: true
+        options:
+          - avm/res/network/network-security-group
+          - avm/res/network/private-endpoint
+          - avm/res/network/subnet
+          - avm/res/key-vault/vault
+          - avm/res/kubernetes-configuration/flux-configuration
+          - avm/res/kubernetes-configuration/extension
+          - avm/res/storage/storage-account
+          - avm/res/container-service/managed-cluster
+
+      version:
+        type: string
+        description: 'Specify the version (e.g., 0.5.0 , 0.5.1 etc)'
+        required: true
+
+jobs:
+  OnboardModule:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the main branch
+        uses: actions/checkout@v4
+
+      # Checkout the specific module tag from the external repository
+      - name: Checkout external repository with the specified version tag
+        uses: actions/checkout@v4
+        with:
+          repository: Azure/bicep-registry-modules
+          ref: refs/tags/${{ github.event.inputs.module }}/${{ github.event.inputs.version }}
+          path: bicep-registry-modules
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@gtest.com"
+      - name: Clear destination directory
+        run: |
+          MODULE_NAME="${{ github.event.inputs.module }}"
+          DEST_BASE="elements/res"  # Updated base directory
+          # Clear destination directory before copying new module
+          echo "Cleaning up destination directory: $DEST_BASE"
+          rm -rf "$DEST_BASE"  # Clean up the entire res directory
+      - name: Copy selected module
+        run: |
+          MODULE_NAME="${{ github.event.inputs.module }}"
+          VERSION="${{ github.event.inputs.version }}"
+          # Extract ResourceProvider and Resource from the module path
+          RESOURCE_PROVIDER=$(echo "$MODULE_NAME" | cut -d'/' -f3)  # Extract the third part of the path (network in this case)
+          RESOURCE=$(echo "$MODULE_NAME" | cut -d'/' -f4)           # Extract the fourth part of the path (e.g., subnet, private-endpoint)
+          # Correct the source and destination directories
+          SOURCE_DIR="bicep-registry-modules/$MODULE_NAME"
+          DEST_DIR="elements/res/$RESOURCE_PROVIDER/$RESOURCE"
+          echo "Copying module from: $SOURCE_DIR to: $DEST_DIR"
+          mkdir -p "$DEST_DIR"  # Create the destination directory structure
+          # Check if the source directory exists in the external repo
+          if [ -d "$SOURCE_DIR" ]; then
+            cp -r "$SOURCE_DIR/"* "$DEST_DIR"/  # Copy contents to destination
+            echo "Copy completed successfully."
+          else
+            echo "Error: Source directory '$SOURCE_DIR' does not exist."
+            exit 1
+          fi
+          echo "Listing copied files in destination directory:"
+          ls -laR "$DEST_DIR"
+      - name: Create a feature branch
+        run: |
+          git checkout -b feature/onboard-${{ github.event.inputs.module }}-${{ github.event.inputs.version }}
+      - name: Add and commit changes
+        run: |
+          git add "elements/res/${RESOURCE_PROVIDER}/${RESOURCE_NAME}"
+          git commit -m "Onboard module: $MODULE_NAME - Version: $VERSION" || echo "No changes to commit"
+      - name: Push to remote
+        run: |
+          git push origin feature/onboard-${{ github.event.inputs.module }}-${{ github.event.inputs.version }}
+      - name: Checkout the feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/onboard-${{ github.event.inputs.module }}-${{ github.event.inputs.version }}

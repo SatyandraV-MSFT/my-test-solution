@@ -1,0 +1,41 @@
+name: Element - CI Environment Issue 🚀
+description: Have an issue, question or suggestion for the CI Environment or its utilities? Let us know!
+title: "[Element CI Environment Issue]: "
+labels:
+  [
+    "Needs: Triage :mag:",
+    "Needs: Core Team :genie:",
+    "Type: CI :rocket:",
+  ]
+projects: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for submitting this issue!
+
+  - type: checkboxes
+    id: existing-checks
+    attributes:
+      label: Check for previous/existing GitHub issues
+      description: By submitting this issue, you confirm that you have [searched for previous/existing GitHub issues](https://aka.ms/BRM/TypeElement) to avoid creating a duplicate.
+      options:
+        - label: I have checked for previous/existing GitHub issues
+          required: true
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue Type?
+      description: How would you best describe this issue? Is this a...
+      options:
+        - "Feature Request"
+        - "Bug"
+    validations:
+      required: true
+  - type: textarea
+    id: question-feedback-text
+    attributes:
+      label: Description
+      description: Let us know your question, feedback or suggestion here!
+    validations:
+      required: true
