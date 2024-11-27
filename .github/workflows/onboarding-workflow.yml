@@ -64,9 +64,6 @@ jobs:
             exit 1
           }
 
-          Write-Output "Listing copied files in destination directory:"
-          TREE $DEST_DIR /F
-
       - name: Create a feature branch
         run: |
           git checkout -b feature/onboard-avm/res/${{ env.MODULE_FULL_NAME }}
