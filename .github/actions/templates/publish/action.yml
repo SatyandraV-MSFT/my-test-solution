@@ -65,12 +65,10 @@ runs:
         # Find all main.bicep files in the specified directory structure
         Get-ChildItem -Path $env:BASE_MODULE_PATH -Recurse -Filter "main.bicep" | ForEach-Object {
             $bicepFile = $_.FullName
-            $moduleDir = $_.DirectoryName
-
-            Write-Output "Publishing module at path: $moduleDir"
+            Write-Output "Publishing module at path: $BASE_MODULE_PATH"
 
             # Publish the Bicep file to ACR with the directory structure and version
-            az bicep publish --file $bicepFile --target "br:$($env:ACR_NAME).azurecr.io/$($moduleDir):$($newVersion)" --force
+            az bicep publish --file $bicepFile --target "br:$($env:ACR_NAME).azurecr.io/$($BASE_MODULE_PATH):$($newVersion)" --force
         }
 
     - name: Set publish status
