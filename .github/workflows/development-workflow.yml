@@ -25,24 +25,30 @@ permissions:
 jobs:
   check-pr:
     runs-on: ubuntu-latest
+    outputs: 
+      output_var: ${{ steps.first-step.outputs.result }}
     steps:
-      - name: Check if Pull Request Exists
+     -  name: Check if Pull Request Exists
         id: check_pr
         uses: actions/github-script@v6
         with:
           script: |
-            const { data: pullRequests } = await github.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'open',
-              head: `${context.repo.owner}:${github.ref.replace('refs/heads/', '')}`
-            });
-            return pullRequests.length > 0;
+            $headers = @{
+                Authorization = "Bearer ${{ secrets.GITHUB_TOKEN }}"
+            }
+            $uri = "https://api.github.com/repos/${{ github.repository_owner }}/${{ github.repository }}/pulls?state=open&head=${{ github.repository_owner }}:${{ github.ref }}"
+
+            $response = Invoke-RestMethod -Uri $uri -Headers $headers -Method Get
+            $pullRequests = $response | ConvertFrom-Json
+
+            $result = if ($pullRequests.Count -gt 0) { 'true' } else { 'false' }
+            Write-Output "::set-output name=result::$result"
+
 
   Lint-Test-Deploy-job:
     needs: check-pr
     runs-on: ubuntu-latest
-    if: ${{ steps.check_pr.outputs.result == 'false' }} || github.event_name == 'workflow_dispatch'
+    if: ${{ needs.check_pr.outputs.result == 'true' || github.event_name == 'workflow_dispatch' }}
     environment: sandbox
     env:
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
