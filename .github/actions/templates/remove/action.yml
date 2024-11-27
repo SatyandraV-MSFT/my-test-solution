@@ -24,18 +24,14 @@ runs:
         client-id: ${{ inputs.azure_client_id }}
         tenant-id: ${{ inputs.azure_tenant_id }}
         subscription-id: ${{ inputs.azure_subscription_id }}
-        enable-AzPSSession: false
-        environment: azurecloud
-        auth-type: SERVICE_PRINCIPAL
+        enable-AzPSSession: true
 
     - name: Cleanup Resource Group
-      shell: bash
+      shell: pwsh
       env:
         RESOURCE_GROUP_NAME: ${{ inputs.resource_group_name }}
       run: |
-        if [ -n "$RESOURCE_GROUP_NAME" ]; then
-          echo "Cleaning up Resource Group: $RESOURCE_GROUP_NAME"
-          az group delete --name "$RESOURCE_GROUP_NAME" --yes --no-wait
-        else
-          echo "No resource group to delete."
-        fi
+        if ($env:RESOURCE_GROUP_NAME) {
+          Write-Output "Cleaning up Resource Group: $env:RESOURCE_GROUP_NAME"
+          az group delete --name "$env:RESOURCE_GROUP_NAME" --yes --no-wait
+        } else { Write-Output "No resource group to delete." }
