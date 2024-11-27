@@ -70,7 +70,7 @@ runs:
             Write-Output "Publishing module at path: $moduleDir"
 
             # Publish the Bicep file to ACR with the directory structure and version
-            az bicep publish --file $bicepFile --target "br:$($env:ACR_NAME).azurecr.io/$moduleDir:$newVersion" --force
+            az bicep publish --file $bicepFile --target "br:$($env:ACR_NAME).azurecr.io/$($moduleDir):$($newVersion)" --force
         }
 
     - name: Set publish status
