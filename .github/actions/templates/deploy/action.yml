@@ -38,13 +38,6 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout the feature branch
-      uses: actions/checkout@v4
-      with:
-        ref: ${{ github.head_ref }}
-        fetch-depth: 1
-        clean: true
-
     - name: Login to Azure
       uses: azure/login@v2
       with:
