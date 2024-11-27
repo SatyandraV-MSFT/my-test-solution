@@ -75,15 +75,17 @@ jobs:
     needs: Deploy-job
     runs-on: ubuntu-latest
     environment: sandbox
-    env:
-      BRANCH_NAME: ${{ github.ref_name }}
     steps:
-      - name: Publish Bicep Modules to ACR
-        uses: ./.github/actions/templates/publish
-        with:
-          acr_name: "Pxsmytinfsweacr1"
-          base_module_path: "${{ env.module_name }}"
-          version: ${{ env.version }}
+        - name: Checkout the feature branch
+          uses: actions/checkout@v4
+          with:
+            ref: ${{ github.head_ref }}
+        - name: Publish Bicep Modules to ACR
+          uses: ./.github/actions/templates/publish
+          with:
+            acr_name: "Pxsmytinfsweacr1"
+            base_module_path: "${{ env.module_name }}"
+            version: ${{ env.version }}
 
   Removal-job:
     needs: 
@@ -92,8 +94,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: sandbox
     if: ${{ github.event.inputs.removeDeployment == 'true' }}
-    env:
-      BRANCH_NAME: ${{ github.ref_name }}
     steps:
       - name: Checkout the feature branch
         uses: actions/checkout@v4

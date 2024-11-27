@@ -29,9 +29,6 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout Code
-      uses: actions/checkout@v4
-
     - name: Install or Update Bicep CLI
       shell: bash
       run: |
