@@ -51,9 +51,7 @@ runs:
         client-id: ${{ inputs.azure_client_id }}
         tenant-id: ${{ inputs.azure_tenant_id }}
         subscription-id: ${{ inputs.azure_subscription_id }}
-        enable-AzPSSession: false
-        environment: azurecloud
-        auth-type: SERVICE_PRINCIPAL
+        enable-AzPSSession: true
 
     - name: Deploy Bicep Template
       id: deploy_bicep
