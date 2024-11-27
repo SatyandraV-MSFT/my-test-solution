@@ -11,6 +11,15 @@ inputs:
   version:
     description: "Version tag for the Bicep module (e.g., 1.0.0)"
     required: true
+  azure_client_id:
+    description: "Az Auth: Azure client ID"
+    required: true
+  azure_tenant_id:
+    description: "Az Auth: Azure tenant ID"
+    required: true
+  azure_subscription_id:
+    description: "Az Auth: Azure subscription ID"
+    required: true
 
 outputs:
   publish_status:
@@ -32,9 +41,9 @@ runs:
     - name: Login to Azure
       uses: azure/login@v2
       with:
-        client-id: ${{ env.AZURE_CLIENT_ID }}
-        tenant-id: ${{ env.AZURE_TENANT_ID }}
-        subscription-id: ${{ env.AZURE_SUBSCRIPTION_ID }}
+        client-id: ${{ inputs.azure_client_id }}
+        tenant-id: ${{ inputs.azure_tenant_id }}
+        subscription-id: ${{ inputs.azure_subscription_id }}
         enable-AzPSSession: false
         environment: azurecloud
         auth-type: SERVICE_PRINCIPAL

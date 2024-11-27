@@ -16,6 +16,15 @@ inputs:
     description: "Deployment region (e.g., westeurope)"
     required: false
     default: "westeurope"
+  azure_client_id:
+    description: "Az Auth: Azure client ID"
+    required: true
+  azure_tenant_id:
+    description: "Az Auth: Azure tenant ID"
+    required: true
+  azure_subscription_id:
+    description: "Az Auth: Azure subscription ID"
+    required: true
 
 outputs:
   deployed_rg_name:
@@ -25,12 +34,15 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Checkout the feature branch
-      uses: actions/checkout@v4
+    - name: Login to Azure
+      uses: azure/login@v2
       with:
-        ref: ${{ github.head_ref }}
-        fetch-depth: 1
-        clean: true
+        client-id: ${{ inputs.azure_client_id }}
+        tenant-id: ${{ inputs.azure_tenant_id }}
+        subscription-id: ${{ inputs.azure_subscription_id }}
+        enable-AzPSSession: false
+        environment: azurecloud
+        auth-type: SERVICE_PRINCIPAL
 
     - name: Validate Deployment with What-If
       shell: bash
