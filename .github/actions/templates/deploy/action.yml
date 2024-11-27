@@ -67,6 +67,7 @@ runs:
           exit 1
         }
     - name: Set output
+      shell: bash
       run: echo "::set-output name=deployed_rg_name::$env:RESOURCE_GROUP_NAME"
 
 
