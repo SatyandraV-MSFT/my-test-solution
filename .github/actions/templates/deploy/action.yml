@@ -16,10 +16,6 @@ inputs:
     description: "Deployment region (e.g., westeurope)"
     required: false
     default: "westeurope"
-  removeDeployment:
-    description: 'Set "true" to set module up for removal'
-    default: "true"
-    required: false
   azure_client_id:
     description: "Az Auth: Azure client ID"
     required: true
@@ -48,42 +44,29 @@ runs:
 
     - name: Deploy Bicep Template
       id: deploy_bicep
-      shell: bash
+      shell: pwsh
       env:
         TEMPLATE_PATH: "${{ inputs.module_name }}/${{ inputs.test_subdir }}/${{ inputs.file_name }}"
         DEPLOY_REGION: ${{ inputs.region }}
       run: |
-        echo "Deploying Bicep template using path: $TEMPLATE_PATH"
-        RESOURCE_GROUP_NAME=$(az deployment sub create \
-          --location "$DEPLOY_REGION" \
-          --template-file "${{ github.workspace }}/$TEMPLATE_PATH" \
-          --query "properties.outputs.resourceGroupName.value" -o tsv) || {
-            echo "Deployment command failed."
-            exit 1
-          }
+        Write-Output "Deploying Bicep template using path: $env:TEMPLATE_PATH"
 
-        if [ -n "$RESOURCE_GROUP_NAME" ]; then
-          echo "Deployed Resource Group Name: $RESOURCE_GROUP_NAME"
-          echo "deployed_rg_name=$RESOURCE_GROUP_NAME" >> $GITHUB_ENV
-        else
-          echo "Deployment failed, no Resource Group created."
+        $deploymentOutput = az deployment sub create --location "$env:DEPLOY_REGION" --template-file "${{ github.workspace }}/$env:TEMPLATE_PATH"
+        $RESOURCE_GROUP_NAME = ($deploymentOutput | ConvertFrom-Json).properties.parameters.resourceGroupName.value
+
+        if ($LASTEXITCODE -ne 0) {
+          Write-Error "Deployment command failed."
           exit 1
-        fi
+        }
 
-    - name: Set output for deployed resource group
-      if: success()
-      shell: bash
-      run: echo "::set-output name=deployed_rg_name::$RESOURCE_GROUP_NAME"
+        if ($RESOURCE_GROUP_NAME) {
+          Write-Output "Deployed Resource Group Name: $RESOURCE_GROUP_NAME"
+          echo "deployed_rg_name=$RESOURCE_GROUP_NAME" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        } else {
+          Write-Error "Deployment failed, no Resource Group created."
+          exit 1
+        }
+    - name: Set output
+      run: echo "::set-output name=deployed_rg_name::$env:RESOURCE_GROUP_NAME"
 
-    - name: Cleanup Resource Group
-      if: ${{ (success() || failure()) && inputs.removeDeployment == 'true' }}
-      shell: bash
-      env:
-        RESOURCE_GROUP_NAME: ${{ env.deployed_rg_name }}
-      run: |
-        if [ -n "$RESOURCE_GROUP_NAME" ]; then
-          echo "Cleaning up Resource Group: $RESOURCE_GROUP_NAME"
-          az group delete --name "$RESOURCE_GROUP_NAME" --yes --no-wait
-        else
-          echo "No resource group to delete."
-        fi
+
