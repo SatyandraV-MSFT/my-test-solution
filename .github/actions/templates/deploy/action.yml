@@ -59,7 +59,7 @@ runs:
       id: deploy_bicep
       shell: bash
       env:
-        TEMPLATE_PATH: "${{ c.module_name }}/${{ inputs.test_subdir }}/${{ inputs.file_name }}"
+        TEMPLATE_PATH: "${{ inputs.module_name }}/${{ inputs.test_subdir }}/${{ inputs.file_name }}"
         DEPLOY_REGION: ${{ inputs.region }}
       run: |
         echo "Deploying Bicep template using path: $TEMPLATE_PATH"
