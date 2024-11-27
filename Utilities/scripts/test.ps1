@@ -27,7 +27,7 @@ New-Item -ItemType Directory -Force -Path $DEST_DIR
 if (Test-Path -Path $SOURCE_DIR) {
   Copy-Item -Path "$SOURCE_DIR\*" -Destination $DEST_DIR -Recurse -Force
   Write-Output "Copy completed successfully."
-  Remove-Item -Force -Path "bicep-registry" -Confirm:$false
+  Remove-Item -Force -Path "bicep-registry" -Confirm:$false -Recurse
 } else {
   Write-Error "Error: Source directory '$SOURCE_DIR' does not exist."
   exit 1
