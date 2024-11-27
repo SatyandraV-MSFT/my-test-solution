@@ -66,15 +66,15 @@ jobs:
 
       - name: Create a feature branch
         run: |
-          git checkout -b feature/onboard-avm/res/${{ env.MODULE_FULL_NAME }}
+          git checkout -b feature/onboard-avm/res/${{ github.event.inputs.module }}
       - name: Add and commit changes
         run: |
-          git add "elements/res/${{ env.MODULE_FULL_NAME }}"
-          git commit -m "Onboard module: $${{ env.MODULE_FULL_NAME }} - Version: $MODULE_VERSION" || echo "No changes to commit"
+          git add "elements/res/${{ github.event.inputs.module }}"
+          git commit -m "Onboard module: ${{ github.event.inputs.module }} - Version: $MODULE_VERSION" || echo "No changes to commit"
       - name: Push to remote
         run: |
-          git push origin feature/onboard-avm/res/${{ env.MODULE_FULL_NAME }}
+          git push origin feature/onboard-avm/res/${{ github.event.inputs.module }}
       - name: Checkout the feature branch
         uses: actions/checkout@v4
         with:
-          ref: feature/onboard-avm/res/${{ env.MODULE_FULL_NAME }}
+          ref: feature/onboard-avm/res/${{ github.event.inputs.module }}
