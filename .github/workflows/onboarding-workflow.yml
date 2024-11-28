@@ -6,7 +6,7 @@ on:
       module_path:
         type: choice
         description: 'AVM Modules and version tags'
-        required: false
+        required: true
         options:
            - network/network-security-group/0.5.0
            - storage/storage-account/0.14.3

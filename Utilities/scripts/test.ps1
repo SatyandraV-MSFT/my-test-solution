@@ -36,3 +36,5 @@ if (Test-Path -Path $SOURCE_DIR) {
 Write-Output "Listing copied files in destination directory:"
 Get-ChildItem -Path $DEST_DIR -Recurse 
 TREE $DEST_DIR /F
+
+

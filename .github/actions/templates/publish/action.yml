@@ -50,17 +50,7 @@ runs:
         VERSION: ${{ inputs.version }}
       shell: pwsh
       run: |
-        # Split the version into its components
-        $versionComponents = $env:VERSION -split '\.'
-        $majorVersion = [int]$versionComponents[0]
-        $minorVersion = [int]$versionComponents[1]
-        $patchVersion = [int]$versionComponents[2]
-
-        # Increment the patch version
-        $newPatchVersion = $patchVersion + 1
-        $newVersion = "$majorVersion.$minorVersion.$newPatchVersion"
-
-        Write-Output "Incremented version to: $newVersion"
+        Write-Output "version tag: $($env:VERSION)"
 
         # Find all main.bicep files in the specified directory structure
         Get-ChildItem -Path $env:MODULE_PATH -Recurse -Filter "main.bicep" | ForEach-Object {
@@ -68,7 +58,7 @@ runs:
             Write-Output "Publishing module at path: $($env:MODULE_PATH)"
 
             # Publish the Bicep file to ACR with the directory structure and version
-            az bicep publish --file $bicepFile --target "br:$($env:ACR_NAME).azurecr.io/$($env:MODULE_PATH):$($newVersion)" --force
+            az bicep publish --file $bicepFile --target "br:$($env:ACR_NAME).azurecr.io/$($env:MODULE_PATH):$($env:VERSION)" --force
         }
 
     - name: Set publish status
