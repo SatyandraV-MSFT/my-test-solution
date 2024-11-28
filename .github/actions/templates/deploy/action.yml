@@ -71,4 +71,5 @@ runs:
 
     - name: Set output
       id: set_output
+      shell: pwsh
       run: echo "::set-output name=deployed_rg_name::${{ steps.deploy_bicep.outputs.deployed_rg_name }}"
