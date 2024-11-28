@@ -7,6 +7,10 @@ on:
         description: 'Module path and version'
         required: true
         default: 'network/network-security-group/0.5.0'
+      repository:
+        description: 'BRM Repo: Azure/bicep-registry-modules'
+        required: false
+        default: 'Azure/bicep-registry-modules'
 
 jobs:
   onboard_modules:
@@ -27,9 +31,14 @@ jobs:
           $moduleName = "$($moduleParts[0])/$($moduleParts[1])"
           $branchName = "$moduleInput"
           $version = $moduleParts[2]
+          $repositoryInput = "${{ github.event.inputs.repository }}"
+          $repositoryParts = $repositoryInput -split '/'
+          $repository = "$($repositoryParts[0])/$($repositoryParts[1])"
+          $brmFolderPath = $repositoryParts[1]
           echo "::set-output name=module_name::$moduleName"
           echo "::set-output name=branch_name::$branchName"
           echo "::set-output name=version::$version"
+          echo "::set-output name=brmFolderPath::$brmFolderPath"
 
       - name: Create feature branch
         shell: pwsh
@@ -39,15 +48,15 @@ jobs:
       - name: Checkout external repository
         uses: actions/checkout@v2
         with:
-          repository: Azure/bicep-registry-modules
-          path: bicep-registry-modules
+          repository: "${{ github.event.inputs.repository }}"
+          path: ${{ steps.define_inputs.outputs.brmFolderPath }}
           ref: "refs/tags/avm/res/${{ steps.define_inputs.outputs.module_name }}/${{ steps.define_inputs.outputs.version }}"
 
       - name: Copy module to new branch
         shell: pwsh
         run: |
           $moduleName = "${{ steps.define_inputs.outputs.module_name }}"
-          $sourceDir = "avm/res/$moduleName"
+          $sourceDir = "${{ steps.define_inputs.outputs.brmFolderPath }}/avm/res/$moduleName"
           $branchName = "${{ steps.define_inputs.outputs.branch_name }}"
           $destDir = "elements/res/$moduleName"
           Write-Output "Copying module from: $sourceDir to: $destDir"
@@ -56,7 +65,7 @@ jobs:
       - name: Clean up external repository
         shell: pwsh
         run: |
-          Remove-Item -Recurse -Force -Path brm-modules
+          Remove-Item -Recurse -Force -Path bicep-registry-modules
 
       - name: Push changes to feature branch
         shell: pwsh
