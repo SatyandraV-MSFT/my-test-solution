@@ -69,6 +69,6 @@ runs:
           exit 1
         }
 
-      - name: Set output
-        id: set_output
-        run: echo "::set-output name=deployed_rg_name::${{ steps.deploy_bicep.outputs.deployed_rg_name }}"
+    - name: Set output
+      id: set_output
+      run: echo "::set-output name=deployed_rg_name::${{ steps.deploy_bicep.outputs.deployed_rg_name }}"
