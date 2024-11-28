@@ -69,8 +69,8 @@ jobs:
           git checkout -b feature/onboard-avm/res/${{ github.event.inputs.module }}
       - name: Add and commit changes
         run: |
-          git add "elements/res/${{ github.event.inputs.module }}"
-          git commit -m "Onboard module: ${{ github.event.inputs.module }} - Version: $MODULE_VERSION" || echo "No changes to commit"
+          git add .
+          git commit -m "Onboard module: ${{ github.event.inputs.module }}
       - name: Push to remote
         run: |
           git push origin feature/onboard-avm/res/${{ github.event.inputs.module }}
