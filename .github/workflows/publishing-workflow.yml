@@ -82,7 +82,7 @@ jobs:
           # Set the outputs
           echo "::set-output name=module_name::$moduleName"
           echo "::set-output name=version::$version"
-      - name: Publish Bicep Modules to ACR
+      - name: Publish Bicep Modules to ACR      
         uses: ./.github/actions/templates/publish
         with:
           acr_name: ${{ vars.BICEP_ACR_NAME}}
