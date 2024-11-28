@@ -50,6 +50,6 @@ runs:
       id: validate_bicep
       shell: pwsh
       run: |
-        $templatePath = "${{ github.workspace }}/${{ inputs.module_name }}/${{ inputs.test_subdir }}/${{ inputs.file_name }}"
+        $templatePath = "${{ github.workspace }}/elements/res/${{ inputs.module_name }}/${{ inputs.test_subdir }}/${{ inputs.file_name }}"
         Write-Output "Validating Bicep template using path: $env:TEMPLATE_PATH"
         az deployment sub create --location "${{ inputs.region }}" --template-file "$templatePath" --parameters namePrefix=${{ inputs.namePrefix }}
