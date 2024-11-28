@@ -63,7 +63,7 @@ runs:
 
         if ($RESOURCE_GROUP_NAME) {
           Write-Output "Deployed Resource Group Name: $RESOURCE_GROUP_NAME"
-          echo "::set-output name=deployed_rg_name::$env:RESOURCE_GROUP_NAME"
+          echo "::set-output name=deployed_rg_name::$RESOURCE_GROUP_NAME"
         } else {
           Write-Error "Deployment failed, no Resource Group created."
           exit 1
