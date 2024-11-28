@@ -16,6 +16,10 @@ inputs:
     description: "Deployment region (e.g., westeurope)"
     required: false
     default: "westeurope"
+  namePrefix:
+    description: "Name prefix for the resources"
+    required: false
+    default: "prxsbx"
   azure_client_id:
     description: "Az Auth: Azure client ID"
     required: true
@@ -47,11 +51,11 @@ runs:
       shell: pwsh
       env:
         TEMPLATE_PATH: "${{ inputs.module_name }}/${{ inputs.test_subdir }}/${{ inputs.file_name }}"
-        DEPLOY_REGION: ${{ inputs.region }}
       run: |
-        Write-Output "Deploying Bicep template using path: $env:TEMPLATE_PATH"
-
-        $deploymentOutput = az deployment sub create --location "$env:DEPLOY_REGION" --template-file "${{ github.workspace }}/$env:TEMPLATE_PATH"
+        $templatePath = "${{ github.workspace }}/${{ inputs.module_name }}/${{ inputs.test_subdir }}/${{ inputs.file_name }}"
+        Write-Output "Deploying Bicep template using path: $($templatePath)"
+        $deploymentOutput = az deployment sub create --location "${{ inputs.region }}" --template-file "$templatePath" --parameters namePrefix=${{ inputs.namePrefix }}
+        
         $RESOURCE_GROUP_NAME = ($deploymentOutput | ConvertFrom-Json).properties.parameters.resourceGroupName.value
 
         if ($LASTEXITCODE -ne 0) {
@@ -61,13 +65,10 @@ runs:
 
         if ($RESOURCE_GROUP_NAME) {
           Write-Output "Deployed Resource Group Name: $RESOURCE_GROUP_NAME"
-          echo "deployed_rg_name=$RESOURCE_GROUP_NAME" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "::set-output name=deployed_rg_name::$env:RESOURCE_GROUP_NAME"
         } else {
           Write-Error "Deployment failed, no Resource Group created."
           exit 1
         }
-    - name: Set output
-      shell: bash
-      run: echo "::set-output name=deployed_rg_name::$env:RESOURCE_GROUP_NAME"
 
 
