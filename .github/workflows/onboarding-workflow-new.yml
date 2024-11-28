@@ -8,7 +8,7 @@ on:
         required: true
         default: 'network/network-security-group/0.5.0'
       repository:
-        description: 'BRM Repo: Azure/bicep-registry-modules'
+        description: 'Source Repo: Azure/bicep-registry-modules'
         required: false
         default: 'Azure/bicep-registry-modules'
 
@@ -65,11 +65,13 @@ jobs:
       - name: Clean up external repository
         shell: pwsh
         run: |
-          Remove-Item -Recurse -Force -Path bicep-registry-modules
+          Remove-Item -Recurse -Force -Path "${{ steps.define_inputs.outputs.brmFolderPath }}"
 
       - name: Push changes to feature branch
         shell: pwsh
         run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@gtest.com"
           git add .
           git commit -m "Add module ${{ steps.define_inputs.outputs.module_name }} version ${{ steps.define_inputs.outputs.version }}"
           git push origin "${{ steps.define_inputs.outputs.branch_name }}"
