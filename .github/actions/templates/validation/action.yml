@@ -16,6 +16,10 @@ inputs:
     description: "Deployment region (e.g., westeurope)"
     required: false
     default: "westeurope"
+  namePrefix:
+    description: "Name prefix for the resources"
+    required: false
+    default: "prxsbx"
   azure_client_id:
     description: "Az Auth: Azure client ID"
     required: true
@@ -42,12 +46,10 @@ runs:
         subscription-id: ${{ inputs.azure_subscription_id }}
         enable-AzPSSession: true
 
-    - name: Validate Deployment with What-If
-      shell: bash
-      env:
-        TEMPLATE_PATH: "${{ inputs.module_name }}/${{ inputs.test_subdir }}/${{ inputs.file_name }}"
+    - name: Validate Bicep Template with What-IF
+      id: validate_bicep
+      shell: pwsh
       run: |
-        echo "Using template path: $TEMPLATE_PATH"
-        az deployment sub what-if \
-          --location "${{ inputs.region }}" \
-          --template-file "${{ github.workspace }}/$TEMPLATE_PATH"
+        $templatePath = "${{ github.workspace }}/${{ inputs.module_name }}/${{ inputs.test_subdir }}/${{ inputs.file_name }}"
+        Write-Output "Validating Bicep template using path: $env:TEMPLATE_PATH"
+        az deployment sub create --location "${{ inputs.region }}" --template-file "$templatePath" --parameters namePrefix=${{ inputs.namePrefix }}

@@ -1,4 +1,4 @@
-name: publishing-workflow
+name: Publishing-Workflow
 
 on:
   workflow_dispatch:
@@ -51,7 +51,8 @@ jobs:
           module_name: "${{ steps.define_inputs.outputs.module_name }}"
           test_subdir: "tests/e2e/defaults"
           file_name: "main.test.bicep"
-          region: "centralindia"
+          region: ${{ vars.AZURE_RESOURCE_REGION }}
+          namePrefix: ${{ vars.AZURE_RESOURCE_PREFIX }}
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
@@ -85,7 +86,7 @@ jobs:
         uses: ./.github/actions/templates/publish
         with:
           acr_name: ${{ vars.BICEP_ACR_NAME}}
-          base_module_path: "elements/res/${{ steps.define_inputs.outputs.module_name }}"
+          base_module_path: ${{ vars.ELEMENTS_ROOT_FOLDER}}/${{ steps.define_inputs.outputs.module_name }}"
           version: ${{ steps.define_inputs.outputs.version }}
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
