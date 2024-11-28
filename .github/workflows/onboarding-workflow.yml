@@ -68,6 +68,7 @@ jobs:
           $branchName = "${{ steps.define_inputs.outputs.branch_name }}"
           $destDir = "elements/res/$moduleName"
           Write-Output "Copying module from: $sourceDir to: $destDir"
+          if (-Not (Test-Path -Path $destDir)) { New-Item -ItemType Directory -Path $destDir }
           Copy-Item -Path "$sourceDir\*" -Destination "$destDir" -Recurse -Force
 
       - name: Clean up external repository
