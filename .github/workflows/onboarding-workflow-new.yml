@@ -39,7 +39,8 @@ jobs:
       - name: Checkout external repository
         uses: actions/checkout@v2
         with:
-          repository: your-org/brm-modules
+          repository: Azure/bicep-registry-modules
+          path: bicep-registry-modules
           ref: "refs/tags/avm/res/${{ steps.define_inputs.outputs.module_name }}/${{ steps.define_inputs.outputs.version }}"
 
       - name: Copy module to new branch
