@@ -86,7 +86,7 @@ jobs:
         uses: ./.github/actions/templates/publish
         with:
           acr_name: ${{ vars.BICEP_ACR_NAME}}
-          base_module_path: ${{ vars.ELEMENTS_ROOT_FOLDER}}/${{ steps.define_inputs.outputs.module_name }}"
+          base_module_path: ${{ vars.ELEMENTS_ROOT_FOLDER}}/${{ steps.define_inputs.outputs.module_name }}
           version: ${{ steps.define_inputs.outputs.version }}
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
