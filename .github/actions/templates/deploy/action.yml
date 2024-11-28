@@ -63,13 +63,8 @@ runs:
 
         if ($RESOURCE_GROUP_NAME) {
           Write-Output "Deployed Resource Group Name: $RESOURCE_GROUP_NAME"
-          echo "::set-output name=deployed_rg_name::$RESOURCE_GROUP_NAME"
+          echo "deployed_rg_name=$RESOURCE_GROUP_NAME" >> "$GITHUB_ENV"
         } else {
           Write-Error "Deployment failed, no Resource Group created."
           exit 1
         }
-
-    - name: Set output
-      id: set_output
-      shell: pwsh
-      run: echo "::set-output name=deployed_rg_name::${{ steps.deploy_bicep.outputs.deployed_rg_name }}"

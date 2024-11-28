@@ -102,8 +102,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
-      - name: Define inputs
-        id: define_inputs
+      - name: Test Output
         shell: pwsh
         run: |
           Write-Output "Deployed Resource Group Name: ${{ needs.Deploy-job.outputs.resourceGroupName }}"
