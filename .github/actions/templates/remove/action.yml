@@ -30,7 +30,7 @@ runs:
       shell: pwsh
       run: |
         $resourceGroupName = "${{ inputs.resource_group_name }}"
-        if (${{ inputs.resource_group_name }}) {
+        if ($resourceGroupName) {
           Write-Output "Cleaning up Resource Group: $($resourceGroupName)"
           az group delete --name $resourceGroupName --yes --no-wait
-        } else { Write-Output "No resource group to delete." }
+        } else { Write-Error "Resource group not found." }

@@ -33,7 +33,7 @@ inputs:
 outputs:
   deployed_rg_name:
     description: "The name of the deployed resource group"
-    value: ${{ env.deployed_rg_name }}
+    value: ${{ steps.deploy_bicep.outputs.moduleTestFilePaths }}
 
 runs:
   using: "composite"
