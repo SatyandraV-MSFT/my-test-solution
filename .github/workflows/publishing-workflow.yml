@@ -25,7 +25,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/ci/') == false
+    if: startsWith(github.ref, 'refs/heads/ci/') == false || startsWith(github.ref, 'refs/heads/main') == false
     environment: sandbox
     steps:
       - name: Checkout the feature branch
@@ -60,7 +60,7 @@ jobs:
   publish:
     needs: deploy
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/ci/') == false
+    if: startsWith(github.ref, 'refs/heads/ci/') == false || startsWith(github.ref, 'refs/heads/main') == false
     environment: sandbox
     steps:
       - name: Checkout the feature branch
@@ -99,7 +99,7 @@ jobs:
       - publish
     runs-on: ubuntu-latest
     environment: sandbox
-    if: ${{ github.event.inputs.removeDeployment == 'true' }} && startsWith(github.ref, 'refs/heads/ci/') == false
+    if: ${{ github.event.inputs.removeDeployment == 'true' }} && startsWith(github.ref, 'refs/heads/ci/') == false || startsWith(github.ref, 'refs/heads/main') == false
     steps:
       - name: Checkout the feature branch
         uses: actions/checkout@v4

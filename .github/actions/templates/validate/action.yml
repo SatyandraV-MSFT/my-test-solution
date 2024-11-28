@@ -30,10 +30,6 @@ inputs:
     description: "Az Auth: Azure subscription ID"
     required: true
 
-outputs:
-  deployed_rg_name:
-    description: "The name of the deployed resource group"
-    value: ${{ env.deployed_rg_name }}
 
 runs:
   using: "composite"
