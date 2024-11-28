@@ -49,10 +49,8 @@ runs:
     - name: Deploy Bicep Template
       id: deploy_bicep
       shell: pwsh
-      env:
-        TEMPLATE_PATH: "${{ inputs.module_name }}/${{ inputs.test_subdir }}/${{ inputs.file_name }}"
       run: |
-        $templatePath = "${{ github.workspace }}/${{ inputs.module_name }}/${{ inputs.test_subdir }}/${{ inputs.file_name }}"
+        $templatePath = "${{ github.workspace }}/elements/res/${{ inputs.module_name }}/${{ inputs.test_subdir }}/${{ inputs.file_name }}"
         Write-Output "Deploying Bicep template using path: $($templatePath)"
         $deploymentOutput = az deployment sub create --location "${{ inputs.region }}" --template-file "$templatePath" --parameters namePrefix=${{ inputs.namePrefix }}
         
