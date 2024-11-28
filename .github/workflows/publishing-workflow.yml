@@ -11,9 +11,6 @@ on:
   pull_request:
     branches:
       - "main"
-    paths:
-      - "elements/res/**"
-      - "!*/**/README.md"
 
 permissions:
   id-token: write
@@ -28,6 +25,7 @@ env:
 jobs:
   Deploy:
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/heads/ci/') == false
     outputs: 
       resourceGroupName: ${{ steps.deploy.outputs.deployed_rg_name }}
     environment: sandbox
@@ -62,6 +60,7 @@ jobs:
   Publish:
     needs: Deploy
     runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/heads/ci/') == false
     environment: sandbox
     steps:
       - name: Checkout the feature branch
@@ -100,7 +99,7 @@ jobs:
       - Publish
     runs-on: ubuntu-latest
     environment: sandbox
-    if: ${{ github.event.inputs.removeDeployment == 'true' }}
+    if: ${{ github.event.inputs.removeDeployment == 'true' }} && startsWith(github.ref, 'refs/heads/ci/') == false
     steps:
       - name: Checkout the feature branch
         uses: actions/checkout@v4
