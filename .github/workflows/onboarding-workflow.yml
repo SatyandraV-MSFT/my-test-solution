@@ -1,80 +1,85 @@
-name: onboarding-workflow
+name: Onboarding-Workflow
 
 on:
   workflow_dispatch:
     inputs:
-      module:
+      module_path:
         type: choice
-        description: 'Select the module/version to onboard'
-        required: true
+        description: 'AVM Modules and version tags'
+        required: false
         options:
-          - avm/res/network/network-security-group
-          - avm/res/network/private-endpoint
-          - avm/res/network/subnet
-          - avm/res/key-vault/vault
-          - avm/res/kubernetes-configuration/flux-configuration
-          - avm/res/kubernetes-configuration/extension
-          - avm/res/storage/storage-account
-          - avm/res/container-service/managed-cluster
-          - storage/storage-account/0.14.3
+           - network/network-security-group/0.5.0
+           - storage/storage-account/0.14.3
+           - network/network-security-group/0.5.0
+           - network/private-endpoint/0.9.0
+           - key-vault/vault/0.10.2
+           - container-service/managed-cluster/0.5.1
+
+      repository:
+        description: 'Source Repo: Azure/bicep-registry-modules'
+        required: false
+        default: 'Azure/bicep-registry-modules'
 
 jobs:
-  OnboardModule:
+  onboard_modules:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout the main branch
-        uses: actions/checkout@v4
-      # Checkout the specific module tag from the external repository
-      - name: Checkout external repository with the specified version tag
-        uses: actions/checkout@v4
-        with:
-          repository: Azure/bicep-registry-modules
-          ref: refs/tags/avm/res/${{ github.event.inputs.module }}
-          path: bicep-registry-modules
       - name: Set up Git
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Define inputs
+        id: define_inputs
+        shell: pwsh
+        run: |
+          $moduleInput = "${{ github.event.inputs.module_path }}"
+          $moduleParts = $moduleInput -split '/'
+          $moduleName = "$($moduleParts[0])/$($moduleParts[1])"
+          $branchName = "$moduleInput"
+          $version = $moduleParts[2]
+          $repositoryInput = "${{ github.event.inputs.repository }}"
+          $repositoryParts = $repositoryInput -split '/'
+          $repository = "$($repositoryParts[0])/$($repositoryParts[1])"
+          $brmFolderPath = $repositoryParts[1]
+          echo "::set-output name=module_name::$moduleName"
+          echo "::set-output name=branch_name::$branchName"
+          echo "::set-output name=version::$version"
+          echo "::set-output name=brmFolderPath::$brmFolderPath"
+
+      - name: Create feature branch
+        shell: pwsh
+        run: |
+          git checkout -b "${{ steps.define_inputs.outputs.branch_name }}" origin/main
+
+      - name: Checkout external repository
+        uses: actions/checkout@v2
+        with:
+          repository: "${{ github.event.inputs.repository }}"
+          path: ${{ steps.define_inputs.outputs.brmFolderPath }}
+          ref: "refs/tags/avm/res/${{ steps.define_inputs.outputs.module_name }}/${{ steps.define_inputs.outputs.version }}"
+
+      - name: Copy module to new branch
+        shell: pwsh
+        run: |
+          $moduleName = "${{ steps.define_inputs.outputs.module_name }}"
+          $sourceDir = "${{ steps.define_inputs.outputs.brmFolderPath }}/avm/res/$moduleName"
+          $branchName = "${{ steps.define_inputs.outputs.branch_name }}"
+          $destDir = "elements/res/$moduleName"
+          Write-Output "Copying module from: $sourceDir to: $destDir"
+          Copy-Item -Path "$sourceDir\*" -Destination "$destDir" -Recurse -Force
+
+      - name: Clean up external repository
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force -Path "${{ steps.define_inputs.outputs.brmFolderPath }}"
+
+      - name: Push changes to feature branch
+        shell: pwsh
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@gtest.com"
-      - name: Copy selected module
-        shell: pwsh
-        run: |
-          $MODULE_NAME = "${{ github.event.inputs.module }}"
-          # Extract ResourceProvider and Resource from the module path          
-          $RESOURCE_PROVIDER = $MODULE_NAME.Split('/')[0]  # Extract the third part of the path (network in this case)
-          $RESOURCE = $MODULE_NAME.Split('/')[1]           # Extract the fourth part of the path (e.g., subnet, private-endpoint)
-          $VERSION = $MODULE_NAME.Split('/')[2]
-          echo "MODULE_VERSION=$VERSION" >> $GITHUB_ENV
-
-          # Correct the source and destination directories
-          $SOURCE_DIR = "bicep-registry-modules/avm/res/$RESOURCE_PROVIDER/$RESOURCE"
-          $DEST_DIR = "elements/res/$RESOURCE_PROVIDER/$RESOURCE"
-          echo "MODULE_FULL_NAME=$DEST_DIR" >> $GITHUB_ENV
-          Write-Output "Copying module from: $SOURCE_DIR to: $DEST_DIR"
-
-          # Create the destination directory structure
-          New-Item -ItemType Directory -Force -Path $DEST_DIR
-
-          # Check if the source directory exists in the external repo
-          if (Test-Path -Path $SOURCE_DIR) {
-            Copy-Item -Path "$SOURCE_DIR\*" -Destination $DEST_DIR -Recurse -Force
-            Write-Output "Copy completed successfully."
-            Remove-Item -Force -Path "bicep-registry-modules" -Confirm:$false -Recurse
-          } else {
-            Write-Error "Error: Source directory '$SOURCE_DIR' does not exist."
-            exit 1
-          }
-
-      - name: Create a feature branch
-        run: |
-          git checkout -b feature/onboard-avm/res/${{ github.event.inputs.module }}
-      - name: Add and commit changes
-        run: |
           git add .
-          git commit -m "Onboard module: ${{ github.event.inputs.module }}
-      - name: Push to remote
-        run: |
-          git push origin feature/onboard-avm/res/${{ github.event.inputs.module }}
-      - name: Checkout the feature branch
-        uses: actions/checkout@v4
-        with:
-          ref: feature/onboard-avm/res/${{ github.event.inputs.module }}
+          git commit -m "Add module ${{ steps.define_inputs.outputs.module_name }} version ${{ steps.define_inputs.outputs.version }}"
+          git push origin "${{ steps.define_inputs.outputs.branch_name }}"
