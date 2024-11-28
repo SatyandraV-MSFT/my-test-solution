@@ -28,10 +28,9 @@ runs:
 
     - name: Cleanup Resource Group
       shell: pwsh
-      env:
-        RESOURCE_GROUP_NAME: ${{ inputs.resource_group_name }}
       run: |
-        if ($env:RESOURCE_GROUP_NAME) {
-          Write-Output "Cleaning up Resource Group: $env:RESOURCE_GROUP_NAME"
-          az group delete --name "$env:RESOURCE_GROUP_NAME" --yes --no-wait
+        $resourceGroupName = "${{ inputs.resource_group_name }}"
+        if (${{ inputs.resource_group_name }}) {
+          Write-Output "Cleaning up Resource Group: $($resourceGroupName)"
+          az group delete --name $resourceGroupName --yes --no-wait
         } else { Write-Output "No resource group to delete." }
