@@ -20,9 +20,13 @@ permissions:
   contents: read
   statuses: write
 
+env:
+  moduleTestSubDir: "tests/e2e/defaults"
+  moduleTestFileName: "main.test.bicep"
+  elementsRootFolder: "elements/res"
 
 jobs:
-  Deploy-job:
+  Deploy:
     runs-on: ubuntu-latest
     outputs: 
       resourceGroupName: ${{ steps.deploy.outputs.deployed_rg_name }}
@@ -47,16 +51,16 @@ jobs:
         uses: ./.github/actions/templates/deploy
         with:
           module_name: "${{ steps.define_inputs.outputs.module_name }}"
-          test_subdir: "tests/e2e/defaults"
-          file_name: "main.test.bicep"
+          test_subdir: "${{ env.moduleTestSubDir }}"
+          file_name: "${{ env.moduleTestFileName }}"
           region: ${{ vars.AZURE_RESOURCE_REGION }}
           namePrefix: ${{ vars.AZURE_RESOURCE_PREFIX }}
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-  Publish-job:
-    needs: Deploy-job
+  Publish:
+    needs: Deploy
     runs-on: ubuntu-latest
     environment: sandbox
     steps:
@@ -84,16 +88,16 @@ jobs:
         uses: ./.github/actions/templates/publish
         with:
           acr_name: ${{ vars.BICEP_ACR_NAME}}
-          base_module_path: ${{ vars.ELEMENTS_ROOT_FOLDER}}/${{ steps.define_inputs.outputs.module_name }}
+          base_module_path: ${{ vars.elementsRootFolder}}/${{ steps.define_inputs.outputs.module_name }}
           version: ${{ steps.define_inputs.outputs.version }}
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-  Removal-job:
+  Removal:
     needs: 
-      - Deploy-job
-      - Publish-job
+      - Deploy
+      - Publish
     runs-on: ubuntu-latest
     environment: sandbox
     if: ${{ github.event.inputs.removeDeployment == 'true' }}
@@ -105,11 +109,11 @@ jobs:
       - name: Test Output
         shell: pwsh
         run: |
-          Write-Output "Deployed Resource Group Name: ${{ needs.Deploy-job.outputs.resourceGroupName }}"
+          Write-Output "Deployed Resource Group Name: ${{ needs.Deploy.outputs.resourceGroupName }}"
       - name: Remove Deployment
         uses: ./.github/actions/templates/remove
         with:
-          resource_group_name: ${{ needs.Deploy-job.outputs.resourceGroupName }}
+          resource_group_name: ${{ needs.Deploy.outputs.resourceGroupName }}
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}

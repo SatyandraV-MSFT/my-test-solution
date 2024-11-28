@@ -63,8 +63,9 @@ runs:
 
         if ($RESOURCE_GROUP_NAME) {
           Write-Output "Deployed Resource Group Name: $RESOURCE_GROUP_NAME"
-          echo "deployed_rg_name=$RESOURCE_GROUP_NAME" >> "$GITHUB_ENV"
+          Write-Output ('{0}={1}' -f 'deployed_rg_name', $RESOURCE_GROUP_NAME) >> $env:GITHUB_OUTPUT
         } else {
           Write-Error "Deployment failed, no Resource Group created."
           exit 1
         }
+
