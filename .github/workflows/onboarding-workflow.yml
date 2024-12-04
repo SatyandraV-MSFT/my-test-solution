@@ -1,24 +1,23 @@
-name: Onboarding-Workflow
+name: onboarding-workflow
 
 on:
   workflow_dispatch:
     inputs:
       module_path:
         type: choice
-        description: 'AVM Modules and version tags'
+        description: "AVM Modules and version tags"
         required: true
         options:
-           - network/network-security-group/0.5.0
-           - storage/storage-account/0.14.3
-           - network/network-security-group/0.5.0
-           - network/private-endpoint/0.9.0
-           - key-vault/vault/0.10.2
-           - container-service/managed-cluster/0.5.1
+          - network/network-security-group/0.5.0
+          - storage/storage-account/0.14.3
+          - network/private-endpoint/0.9.0
+          - key-vault/vault/0.10.2
+          - container-service/managed-cluster/0.5.1
 
       repository:
-        description: 'Source Repo: Azure/bicep-registry-modules'
+        description: "Source Repo: Azure/bicep-registry-modules"
         required: false
-        default: 'Azure/bicep-registry-modules'
+        default: "Azure/bicep-registry-modules"
 
 jobs:
   onboard_modules:
