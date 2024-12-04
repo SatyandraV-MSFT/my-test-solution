@@ -1,0 +1,93 @@
+name: update-module-options-workflow
+
+on:
+  workflow-dispatch:
+
+jobs:
+  my-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: my-step
+        run: echo "Hello World!"
+
+# on:
+#   workflow_dispatch:
+#     inputs:
+#       yamlFilePath:
+#         type: string
+#         description: 'Path to the onboarding workflow YAML file (e.g., .github/workflows/onboarding-workflow.yml)'
+#         required: true
+#       registryUrl:
+#         type: string
+#         description: 'URL of the MCR registry (default: https://mcr.microsoft.com/v2)'
+#         default: 'https://mcr.microsoft.com/v2'
+#         required: false
+#       moduleRepoPath:
+#         type: string
+#         description: 'Path to the module repository in the MCR registry (default: bicep/avm/res)'
+#         default: 'bicep/avm/res'
+#         required: false
+
+# permissions:
+#   id-token: write
+#   contents: read
+#   statuses: write
+#   actions: write
+
+# jobs:
+#   UpdateOnboardingWorkflow:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout the repository
+#         uses: actions/checkout@v4
+
+#       - name: Fetch Module List
+#         id: fetch_modules
+#         run: |
+#           pwsh ./utilities/tools/Get-ModuleListFromMcr.ps1 `
+#             -RegistryUrl '${{ inputs.registryUrl }}' `
+#             -ModuleRepoPath '${{ inputs.moduleRepoPath }}' `
+#             > raw-module-list.txt
+#         shell: pwsh
+
+#       - name: Format Module List
+#         id: format_modules
+#         run: |
+#           # Read the raw module list and format it into a PowerShell array
+#           moduleList=$(cat raw-module-list.txt | awk '{print "\""$0"\""}' | paste -sd "," -)
+#           echo "::set-output name=moduleList::@(${moduleList})"
+#         shell: bash
+
+#       - name: Update Onboarding Workflow
+#         run: |
+#           pwsh ./utilities/tools/Add-ModulesToOnboardingWorkflow.ps1 `
+#             -yamlFilePath '${{ inputs.yamlFilePath }}' `
+#             -newOptions '${{ steps.format_modules.outputs.moduleList }}'
+#         shell: pwsh
+
+#       - name: Validate Updated YAML File
+#         run: |
+#           yamllint ${{ inputs.yamlFilePath }}
+#         shell: bash
+
+#       - name: Commit and Create Branch for Changes
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         run: |
+#           git config --global user.name "github-actions"
+#           git config --global user.email "github-actions@gtest.com"
+#           git checkout -b feature/update-module-changes
+#           git add ${{ inputs.yamlFilePath }}
+#           git commit -m "Updated onboarding workflow with new modules and versions" || echo "No changes to commit"
+#           git push origin feature/update-module-changes
+
+#       - name: Create Pull Request
+#         uses: peter-evans/create-pull-request@v7
+#         with:
+#           token: ${{ secrets.GITHUB_TOKEN }}
+#           commit-message: "Updated onboarding workflow with new modules and versions"
+#           branch: feature/update-module-changes
+#           base: main
+#           title: "Update Onboarding Workflow"
+#           body: "This pull request updates the onboarding workflow with the latest modules and versions."

@@ -23,7 +23,7 @@ env:
   elementsRootFolder: "elements/res"
 
 jobs:
-  deploy:
+  Test-Deployment:
     runs-on: ubuntu-latest
     if: startsWith(github.head_ref, 'ci/') == false
     environment: sandbox
@@ -55,8 +55,38 @@ jobs:
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-  publish:
-    needs: deploy
+  Remove-Deployment:
+    if: ${{ github.event_name == 'pull_request' && startsWith(github.head_ref, 'ci/') == false || inputs.remove_deployment == true  }}
+    needs:
+      - Test-Deployment
+    runs-on: ubuntu-latest
+    environment: sandbox
+    steps:
+      - name: Checkout the feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+      - name: Define inputs
+        id: define_inputs
+        shell: pwsh
+        run: |
+          # Split the branch name into module name and version
+          $moduleParts = "${{ github.head_ref }}" -split '/'
+          # Module name
+          $moduleName = "$($moduleParts[0])/$($moduleParts[1])"
+          # Set the outputs
+          echo "::set-output name=module_name::$moduleName"
+      - name: Remove Deployment
+        uses: ./.github/actions/templates/remove
+        with:
+          module_name: ${{ steps.define_inputs.outputs.module_name }}
+          namePrefix: ${{ vars.AZURE_RESOURCE_PREFIX }}
+          azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+          azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+  Publish-Module:
+    needs: Remove-Deployment
     runs-on: ubuntu-latest
     if: startsWith(github.head_ref, 'ci/') == false
     environment: sandbox
@@ -92,49 +122,14 @@ jobs:
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-  Removal:
-    if: ${{ github.event_name == 'pull_request' && startsWith(github.head_ref, 'ci/') == false || inputs.remove_deployment == true  }}
-    needs:
-      - deploy
-      - publish
-    runs-on: ubuntu-latest
-    environment: sandbox
-    steps:
-      - name: Checkout the feature branch
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-      - name: Define inputs
-        id: define_inputs
-        shell: pwsh
-        run: |
-          # Split the branch name into module name and version
-          $moduleParts = "${{ github.head_ref }}" -split '/'
-          # Module name
-          $moduleName = "$($moduleParts[0])/$($moduleParts[1])"
-          # Set the outputs
-          echo "::set-output name=module_name::$moduleName"
-      - name: Remove Deployment
-        uses: ./.github/actions/templates/remove
-        with:
-          module_name: ${{ steps.define_inputs.outputs.module_name }}
-          namePrefix: ${{ vars.AZURE_RESOURCE_PREFIX }}
-          azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
-          azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
-          azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
   Exclusions:
-    if: ${{ startsWith(github.head_ref, 'ci/') == true }}
-    needs:
-      - deploy
-      - publish
-      - Removal
+    if: startsWith(github.head_ref, 'ci/') == true
     runs-on: ubuntu-latest
     environment: sandbox
     steps:
-      - name: Show_exclution
+      - name: Show_exclusion
         id: exclution
         shell: pwsh
         run: |
           # Branch Name excluded from verification
-          write-host "PR Verification bypass for Baranch Name: ${{ github.head_ref }}"
+          write-host "PR Verification bypass for Branch Name: ${{ github.head_ref }}"
