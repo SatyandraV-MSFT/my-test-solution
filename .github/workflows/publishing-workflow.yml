@@ -125,8 +125,6 @@ jobs:
 
   Exclusions:
     if: ${{ startsWith(github.head_ref, 'ci/') == true }}
-    needs:
-      - Removal
     runs-on: ubuntu-latest
     environment: sandbox
     steps:
