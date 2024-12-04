@@ -58,7 +58,7 @@ jobs:
   publish:
     needs: deploy
     runs-on: ubuntu-latest
-    if: startsWith(github.head_ref, 'ci/') == false
+    if: startsWith(github.head_ref, 'ci/') == true
     environment: sandbox
     steps:
       - name: Checkout the feature branch
