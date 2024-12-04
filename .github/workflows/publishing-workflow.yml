@@ -1,12 +1,12 @@
-name: Publishing-Workflow
+name: publishing-workflow
 
 on:
   workflow_dispatch:
     inputs:
-      removeDeployment:
+      remove_deployment:
         type: boolean
-        description: "Remove deployed module"
-        required: false
+        description: "Remove Deployment"
+        required: true
         default: true
   pull_request:
     branches:
@@ -25,7 +25,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/ci/') == false || startsWith(github.ref, 'refs/heads/main') == false
+    if: startsWith(github.head_ref, 'ci/') == false
     environment: sandbox
     steps:
       - name: Checkout the feature branch
@@ -37,7 +37,7 @@ jobs:
         shell: pwsh
         run: |
           # Split the branch name into module name and version
-          $moduleParts = "${{ github.ref_name }}" -split '/'
+          $moduleParts = "${{ github.head_ref }}" -split '/'
           # Module name
           $moduleName = "$($moduleParts[0])/$($moduleParts[1])"
           # Set the outputs
@@ -54,13 +54,11 @@ jobs:
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-    outputs: 
-      deployed_rg_name: ${{ steps.deploy_bicep.outputs.deployed_rg_name }}
 
   publish:
     needs: deploy
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/heads/ci/') == false || startsWith(github.ref, 'refs/heads/main') == false
+    if: startsWith(github.head_ref, 'ci/') == false
     environment: sandbox
     steps:
       - name: Checkout the feature branch
@@ -72,18 +70,19 @@ jobs:
         shell: pwsh
         run: |
           # Split the branch name into module name and version
-          $moduleParts = "${{ github.ref_name }}" -split '/'
+          $moduleParts = "${{ github.head_ref }}" -split '/'
           # Remove patch version
           $versionParts = $moduleParts[2] -split '\.'
           $majorVersion = [int]$versionParts[0]
           $minorVersion = [int]$versionParts[1]
-          $version = "$majorVersion.$minorVersion"
+          $patchVersion = [int]$versionParts[2]
+          $version = "$majorVersion.$minorVersion.$patchVersion"
           # Module name
           $moduleName = "$($moduleParts[0])/$($moduleParts[1])"
           # Set the outputs
           echo "::set-output name=module_name::$moduleName"
           echo "::set-output name=version::$version"
-      - name: Publish Bicep Modules to ACR      
+      - name: Publish Bicep Modules to ACR
         uses: ./.github/actions/templates/publish
         with:
           acr_name: ${{ vars.BICEP_ACR_NAME}}
@@ -94,25 +93,48 @@ jobs:
           azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
   Removal:
-    needs: 
+    if: ${{ github.event_name == 'pull_request' && startsWith(github.head_ref, 'ci/') == false || inputs.remove_deployment == true  }}
+    needs:
       - deploy
       - publish
     runs-on: ubuntu-latest
     environment: sandbox
-    if: ${{ github.event.inputs.removeDeployment == 'true' }} && startsWith(github.ref, 'refs/heads/ci/') == false || startsWith(github.ref, 'refs/heads/main') == false
     steps:
       - name: Checkout the feature branch
         uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
-      - name: Test Output
+      - name: Define inputs
+        id: define_inputs
         shell: pwsh
         run: |
-          Write-Output "Deployed Resource Group Name: ${{ needs.Deploy.outputs.deployed_rg_name }}"
+          # Split the branch name into module name and version
+          $moduleParts = "${{ github.head_ref }}" -split '/'
+          # Module name
+          $moduleName = "$($moduleParts[0])/$($moduleParts[1])"
+          # Set the outputs
+          echo "::set-output name=module_name::$moduleName"
       - name: Remove Deployment
         uses: ./.github/actions/templates/remove
         with:
-          resource_group_name: "${{ needs.deploy.outputs.deployed_rg_name }}"
+          module_name: ${{ steps.define_inputs.outputs.module_name }}
+          namePrefix: ${{ vars.AZURE_RESOURCE_PREFIX }}
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+  Exclusions:
+    if: ${{ startsWith(github.head_ref, 'ci/') == true }}
+    needs:
+      - deploy
+      - publish
+      - Removal
+    runs-on: ubuntu-latest
+    environment: sandbox
+    steps:
+      - name: Show_exclution
+        id: exclution
+        shell: pwsh
+        run: |
+          # Branch Name excluded from verification
+          write-host "PR Verification bypass for Baranch Name: ${{ github.head_ref }}"
