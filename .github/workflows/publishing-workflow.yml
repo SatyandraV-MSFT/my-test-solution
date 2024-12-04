@@ -23,7 +23,7 @@ env:
   elementsRootFolder: "elements/res"
 
 jobs:
-  deploy:
+  Test-Deployment:
     runs-on: ubuntu-latest
     if: startsWith(github.head_ref, 'ci/') == false
     environment: sandbox
@@ -55,10 +55,10 @@ jobs:
       #     azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
       #     azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-  Removal:
+  Remove-Deployment:
     if: ${{ github.event_name == 'pull_request' && startsWith(github.head_ref, 'ci/') == false || inputs.remove_deployment == true  }}
     needs:
-      - deploy
+      - Test-Deployment
     runs-on: ubuntu-latest
     environment: sandbox
     steps:
@@ -85,8 +85,8 @@ jobs:
       #     azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
       #     azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-  Publish:
-    needs: Removal
+  Publish-Module:
+    needs: Remove-Deployment
     runs-on: ubuntu-latest
     if: startsWith(github.head_ref, 'ci/') == false
     environment: sandbox
@@ -133,4 +133,4 @@ jobs:
         shell: pwsh
         run: |
           # Branch Name excluded from verification
-          write-host "PR Verification bypass for Baranch Name: ${{ github.head_ref }}"
+          write-host "PR Verification bypass for Branch Name: ${{ github.head_ref }}"
