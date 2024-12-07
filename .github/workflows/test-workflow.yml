@@ -29,10 +29,10 @@ jobs:
     environment: sandbox
     steps:
       - name: Echo Branch Name
-        run:  echo "Current Branch Name: $CURRENT_BRANCH_NAME"
+        run:  echo "Current Branch Name $CURRENT_BRANCH_NAME"
       - name: Checkout the feature branch
         uses: actions/checkout@v4
         with:
           ref: ${{ env.CURRENT_BRANCH_NAME }}
       - name: Echo Branch Name
-        run:  echo "Current Branch Name: $CURRENT_BRANCH_NAME"
+        run:  echo "Current Branch Name $CURRENT_BRANCH_NAME"
