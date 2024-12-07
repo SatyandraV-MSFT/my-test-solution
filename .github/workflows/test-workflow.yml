@@ -1,0 +1,38 @@
+name: test-workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      remove_deployment:
+        type: boolean
+        description: "Remove Deployment"
+        required: true
+        default: true
+  pull_request:
+    branches:
+      - "main"
+
+permissions:
+  id-token: write
+  contents: read
+  statuses: write
+
+env:
+  moduleTestSubDir: "tests/e2e/defaults"
+  moduleTestFileName: "main.test.bicep"
+  elementsRootFolder: "elements/res"
+	CURRENT_BRANCH_NAME: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+
+jobs:
+  Show-Output:
+    runs-on: ubuntu-latest
+    environment: sandbox
+    steps:
+      - name: Echo Branch Name
+        run:  echo "Current Branch Name: $CURRENT_BRANCH_NAME"
+      - name: Checkout the feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CURRENT_BRANCH_NAME }}
+      - name: Echo Branch Name
+        run:  echo "Current Branch Name: $CURRENT_BRANCH_NAME"
