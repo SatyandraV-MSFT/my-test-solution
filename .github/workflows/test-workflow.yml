@@ -21,7 +21,7 @@ env:
   moduleTestSubDir: "tests/e2e/defaults"
   moduleTestFileName: "main.test.bicep"
   elementsRootFolder: "elements/res"
-  CURRENT_BRANCH_NAME: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref | sed 's|refs/heads/||'}}
+  CURRENT_BRANCH_NAME: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
 
 jobs:
   Show-Output:
