@@ -42,9 +42,9 @@ TREE $DEST_DIR /F
 
           if ($isPull_Request)
           {
-            $commitMessages = git log --format=%B --no-merges origin/${{ github.event.pull_request.head.ref }}          
-            write-host "This is a Pull Request Trigger and Commit Message: $($commitMessages)"
-            if ($commitMessages -match 'remove_deployment=false' ) {
+            $commitMessages = git log --format=%B --no-merges origin/key-vault/vault/0.10.2 | grep -q 'remove_deployment=false'          
+            write-host "This is a Pull Request Trigger and Commit Message: $commitMessages"
+            if ($commitMessages -contains 'remove_deployment=false' ) {
               "remove_deployment=false" | Out-File -FilePath $env:GITHUB_ENV -Append
             } else { "remove_deployment=true" | Out-File -FilePath $env:GITHUB_ENV -Append }
           }
