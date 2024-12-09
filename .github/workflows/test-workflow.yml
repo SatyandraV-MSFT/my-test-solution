@@ -41,25 +41,27 @@ jobs:
         id: check_commit
         shell: pwsh
         run: |
-          $isPull_Request = "${{ github.event_name == 'pull_request' }}"
-          $isWorkflow_Dispatch = "${{ github.event_name == 'workflow_dispatch' }}"
-
-          if ($isPull_Request)
+          $trigger = "${{ github.event_name == 'pull_request' }}"
+          switch ($trigger)
           {
-            $commitMessages = git log --format=%B --no-merges origin/${{ github.event.pull_request.head.ref }}          
-            write-host "This is a Pull Request Trigger and Commit Message: $($commitMessages)"
-            if ($commitMessages -match 'remove_deployment=false' ) {
-              "remove_deployment=false" | Out-File -FilePath $env:GITHUB_ENV -Append
-            } else { "remove_deployment=true" | Out-File -FilePath $env:GITHUB_ENV -Append }
+            'pull_request'
+            {
+                $commitMessages = git log --format=%B --no-merges origin/${{ github.event.pull_request.head.ref }}          
+                write-host "This is a Pull Request Trigger and Commit Message: $($commitMessages)"
+                if ($commitMessages -match 'remove_deployment=false' ) {
+                  "remove_deployment=false" | Out-File -FilePath $env:GITHUB_ENV -Append
+                } else { "remove_deployment=true" | Out-File -FilePath $env:GITHUB_ENV -Append }
+            }
+            'workflow_dispatch'
+            {
+                $workflow_dispatch = "${{ inputs.remove_deployment }}"
+                write-host "This is a Workflow Dispatch Trigger and Input Option: $($workflow_dispatch)"
+                if($workflow_dispatch -eq 'false') {
+                  "remove_deployment=false" | Out-File -FilePath $env:GITHUB_ENV -Append
+                } else { "remove_deployment=true" | Out-File -FilePath $env:GITHUB_ENV -Append }
+            }
+            default { "remove_deployment=true" | Out-File -FilePath $env:GITHUB_ENV -Append }
           }
-          elseif ($isWorkflow_Dispatch)
-          {
-            $workflow_dispatch = "${{ inputs.remove_deployment }}"
-            write-host "This is a Workflow Dispatch Trigger and Input Option: $($workflow_dispatch)"
-            if($workflow_dispatch -eq 'false') {
-              "remove_deployment=false" | Out-File -FilePath $env:GITHUB_ENV -Append
-            } else { "remove_deployment=true" | Out-File -FilePath $env:GITHUB_ENV -Append }
-          } else { "remove_deployment=true" | Out-File -FilePath $env:GITHUB_ENV -Append }
       - name: Remove Deployment
         if: ${{ env.remove_deployment == true }} 
         run:  echo "Commit check remove_deployment = ${{ env.remove_deployment }}, Workflow_dispatch = ${{ inputs.remove_deployment }}"
