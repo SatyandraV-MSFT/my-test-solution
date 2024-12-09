@@ -23,7 +23,7 @@ env:
   moduleTestFileName: "main.test.bicep"
   elementsRootFolder: "elements/res"
   CURRENT_BRANCH_NAME: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
-  REMOVE_DEPLOYMENT_PR: ${{ !contains(github.event.head_commit.message, 'skip_removal=true') }}
+  REMOVE_DEPLOYMENT_PR: ${{ contains(github.event.head_commit.message, 'remove_deployment=false') }}
   REMOVE_DEPLOYMENT_WD: ${{ inputs.remove_deployment }}
 
 jobs:
