@@ -41,7 +41,7 @@ jobs:
         id: check_commit
         shell: pwsh
         run: |
-          $trigger = "${{ github.event_name == 'pull_request' }}"
+          $trigger = "${{ github.event_name}}"
           switch ($trigger)
           {
             'pull_request'
