@@ -37,4 +37,31 @@ Write-Output "Listing copied files in destination directory:"
 Get-ChildItem -Path $DEST_DIR -Recurse 
 TREE $DEST_DIR /F
 
+          $isPull_Request = "${{ github.event_name == 'pull_request' }}"
+          $isWorkflow_Dispatch = "${{ github.event_name == 'workflow_dispatch' }}"
+
+          if ($isPull_Request)
+          {
+            $commitMessages = git log --format=%B --no-merges origin/key-vault/vault/0.10.2 | grep -q 'remove_deployment=false'          
+            write-host "This is a Pull Request Trigger and Commit Message: $commitMessages"
+            if ($commitMessages -contains 'remove_deployment=false' ) {
+              "remove_deployment=false" | Out-File -FilePath $env:GITHUB_ENV -Append
+            } else { "remove_deployment=true" | Out-File -FilePath $env:GITHUB_ENV -Append }
+          }
+          else ($isWorkflow_Dispatch)
+          {
+            $workflow_dispatch = "${{ inputs.remove_deployment }}"
+            write-host "This is a Workflow Dispatch Trigger and Input Option: $($workflow_dispatch)"
+            if($workflow_dispatch -eq 'false') {
+              "remove_deployment=false" | Out-File -FilePath $env:GITHUB_ENV -Append
+            } else { "remove_deployment=true" | Out-File -FilePath $env:GITHUB_ENV -Append }
+          } finally { "remove_deployment=true" | Out-File -FilePath $env:GITHUB_ENV -Append }
+
+
+           
+          else {
+
+          }
+          finally { "remove_deployment=true" | Out-File -FilePath $env:GITHUB_ENV -Append }
+
 

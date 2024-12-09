@@ -12,6 +12,7 @@ on:
     branches:
       - "main"
 
+    
 permissions:
   id-token: write
   contents: read
@@ -35,4 +36,34 @@ jobs:
         with:
           ref: ${{ env.CURRENT_BRANCH_NAME }}
       - name: Echo Branch Name
-        run:  echo "Current Branch Name $CURRENT_BRANCH_NAME"
+        run:  echo "Current Branch Name $CURRENT_BRANCH_NAME "
+      - name: Deployment Removal Options
+        id: check_commit
+        shell: pwsh
+        run: |
+          $trigger = "${{ github.event_name}}"
+          switch ($trigger)
+          {
+            'pull_request'
+            {
+                $commitMessages = git log --format=%B --no-merges origin/${{ github.event.pull_request.head.ref }}
+                write-host "This is a Pull Request Trigger and Commit Message: $commitMessages"
+                if ($commitMessages.Contains('remove_deployment=false')) {
+                  write-host "Commit Message request to skip Resource Removal"
+                  "remove_deployment=false" | Out-File -FilePath $env:GITHUB_ENV -Append
+                } else { "remove_deployment=true" | Out-File -FilePath $env:GITHUB_ENV -Append }
+            }
+            'workflow_dispatch'
+            {
+                $workflow_dispatch = "${{ inputs.remove_deployment }}"
+                write-host "This is a Workflow Dispatch Trigger and Input Option: $($workflow_dispatch)"
+                if($workflow_dispatch -eq 'false') {
+                  "remove_deployment=false" | Out-File -FilePath $env:GITHUB_ENV -Append
+                } else { "remove_deployment=true" | Out-File -FilePath $env:GITHUB_ENV -Append }
+            }
+            default { "remove_deployment=true" | Out-File -FilePath $env:GITHUB_ENV -Append }
+          }
+      - name: Remove Deployment
+        if: ${{ env.remove_deployment == 'true' }} 
+        run:  echo "Commit check remove_deployment = ${{ env.remove_deployment }}, Workflow_dispatch = ${{ inputs.remove_deployment }}"
+
