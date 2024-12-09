@@ -59,7 +59,7 @@ jobs:
             if($workflow_dispatch -eq 'false') {
               "remove_deployment=false" | Out-File -FilePath $env:GITHUB_ENV -Append
             } else { "remove_deployment=true" | Out-File -FilePath $env:GITHUB_ENV -Append }
-          } finally { "remove_deployment=true" | Out-File -FilePath $env:GITHUB_ENV -Append }
+          } else { "remove_deployment=true" | Out-File -FilePath $env:GITHUB_ENV -Append }
       - name: Remove Deployment
         if: ${{ env.remove_deployment == true }} 
         run:  echo "Commit check remove_deployment = ${{ env.remove_deployment }}, Workflow_dispatch = ${{ inputs.remove_deployment }}"
