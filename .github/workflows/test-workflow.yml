@@ -36,7 +36,7 @@ jobs:
         with:
           ref: ${{ env.CURRENT_BRANCH_NAME }}
       - name: Echo Branch Name
-        run:  echo "Current Branch Name $CURRENT_BRANCH_NAME"
+        run:  echo "Current Branch Name $CURRENT_BRANCH_NAME "
       - name: Deployment Removal Options
         id: check_commit
         shell: pwsh
