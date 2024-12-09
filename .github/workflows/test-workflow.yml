@@ -39,6 +39,14 @@ jobs:
           ref: ${{ env.CURRENT_BRANCH_NAME }}
       - name: Echo Branch Name
         run:  echo "Current Branch Name $CURRENT_BRANCH_NAME"
+      - name: Check commit messages
+        id: check_commit
+        run: |
+          if git log --format=%B --no-merges origin/${{ github.event.pull_request.head.ref }} | grep -q 'remove_deployment=false'; then
+            echo "remove_deployment=false" >> $GITHUB_ENV
+          else
+            echo "remove_deployment=true" >> $GITHUB_ENV
       - name: Remove Deployment
-        run:  echo "Deployment will be removed. REMOVE_DEPLOYMENT_PR = $REMOVE_DEPLOYMENT_PR, Remove_Deployment = $REMOVE_DEPLOYMENT_WD"
+        if: env.remove_deployment == 'true'
+        run:  echo "Deployment will be removed. REMOVE_DEPLOYMENT_PR = ${{ env.remove_deployment }}"
         
