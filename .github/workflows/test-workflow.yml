@@ -40,5 +40,5 @@ jobs:
       - name: Echo Branch Name
         run:  echo "Current Branch Name $CURRENT_BRANCH_NAME"
       - name: Remove Deployment
-        run:  echo "Deployment will be removed.REMOVE_DEPLOYMENT_PR = $REMOVE_DEPLOYMENT_PR, Remove_Deployment = $REMOVE_DEPLOYMENT_WD"
+        run:  echo "Deployment will be removed. REMOVE_DEPLOYMENT_PR = $REMOVE_DEPLOYMENT_PR, Remove_Deployment = $REMOVE_DEPLOYMENT_WD"
         
