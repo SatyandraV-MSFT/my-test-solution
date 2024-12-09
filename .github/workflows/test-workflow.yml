@@ -49,5 +49,5 @@ jobs:
           fi
       - name: Remove Deployment
         if: env.remove_deployment == 'true'
-        run:  echo "Deployment will be removed. REMOVE_DEPLOYMENT_PR = ${{ env.remove_deployment }}"
+        run:  echo "Deployment will be removed.REMOVE_DEPLOYMENT_PR = ${{ env.remove_deployment }}"
         
