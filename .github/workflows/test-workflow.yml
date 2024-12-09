@@ -23,7 +23,8 @@ env:
   moduleTestFileName: "main.test.bicep"
   elementsRootFolder: "elements/res"
   CURRENT_BRANCH_NAME: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
-  REMOVE_DEPLOYMENT: ${{ !contains(github.event.comment.body, 'remove_deployment=false') || inputs.remove_deployment }}
+  REMOVE_DEPLOYMENT_PR: ${{ !contains(github.event.comment.body, 'skip_removal=true') }}
+  REMOVE_DEPLOYMENT_WD: ${{ inputs.remove_deployment }}
 
 jobs:
   Show-Output:
@@ -39,6 +40,5 @@ jobs:
       - name: Echo Branch Name
         run:  echo "Current Branch Name $CURRENT_BRANCH_NAME"
       - name: Remove Deployment
-        if: ${{ env.REMOVE_DEPLOYMENT }}
-        run:  echo "Deployment will be removed. Remove_Deployment = $REMOVE_DEPLOYMENT"
+        run:  echo "Deployment will be removed. REMOVE_DEPLOYMENT_PR = $REMOVE_DEPLOYMENT_PR, Remove_Deployment = $REMOVE_DEPLOYMENT_WD"
         
