@@ -46,6 +46,7 @@ jobs:
             echo "remove_deployment=false" >> $GITHUB_ENV
           else 
             echo "remove_deployment=true" >> $GITHUB_ENV
+          fi
       - name: Remove Deployment
         if: env.remove_deployment == 'true'
         run:  echo "Deployment will be removed. REMOVE_DEPLOYMENT_PR = ${{ env.remove_deployment }}"
