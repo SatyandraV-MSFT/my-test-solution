@@ -42,10 +42,11 @@ jobs:
       - name: Check commit messages
         id: check_commit
         run: |
-          if git log --format=%B --no-merges origin/${{ github.event.pull_request.head.ref }} | grep -q 'remove_deployment=false'; then
-            echo "remove_deployment=false" >> $GITHUB_ENV
-          else
-            echo "remove_deployment=true" >> $GITHUB_ENV
+            if git log --format=%B --no-merges origin/${{ github.event.pull_request.head.ref }} | grep -q 'remove_deployment=false'; then
+              echo "remove_deployment=false" >> $GITHUB_ENV
+            else
+              echo "remove_deployment=true" >> $GITHUB_ENV
+            
       - name: Remove Deployment
         if: env.remove_deployment == 'true'
         run:  echo "Deployment will be removed. REMOVE_DEPLOYMENT_PR = ${{ env.remove_deployment }}"
