@@ -46,7 +46,7 @@ jobs:
           {
             'pull_request'
             {
-                $commitMessages = git log --format=%B --no-merges origin/${{ github.event.pull_request.head.ref }}          
+                $commitMessages = git log --format=%B --no-merges origin/${{ github.event.pull_request.head.ref }} | grep -q 'remove_deployment=false'         
                 write-host "This is a Pull Request Trigger and Commit Message: $($commitMessages)"
                 if ($commitMessages -match 'remove_deployment=false' ) {
                   "remove_deployment=false" | Out-File -FilePath $env:GITHUB_ENV -Append
