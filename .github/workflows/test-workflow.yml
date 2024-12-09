@@ -47,7 +47,9 @@ jobs:
           else 
             echo "remove_deployment=true" >> $GITHUB_ENV
           fi
+      - name: Echo Remove Deployment
+        run:  echo "Commit check remove_deployment = ${{ env.remove_deployment }}, Workflow_dispatch = ${{ inputs.remove_deployment }}"
       - name: Remove Deployment
-        if: env.remove_deployment == 'true'
-        run:  echo "Deployment will be removed.REMOVE_DEPLOYMENT_PR = ${{ env.remove_deployment }}"
-        
+        if: ${{ env.remove_deployment || inputs.remove_deployment }} 
+        run:  echo "Commit check remove_deployment = ${{ env.remove_deployment }}, Workflow_dispatch = ${{ inputs.remove_deployment }}"
+
