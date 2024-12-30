@@ -4,9 +4,9 @@ This module deploys a Storage Account Table Service.
 
 ## Navigation
 
-- [Resource Types](#resource-types)
-- [Parameters](#parameters)
-- [Outputs](#outputs)
+- [Resource Types](#Resource-Types)
+- [Parameters](#Parameters)
+- [Outputs](#Outputs)
 
 ## Resource Types
 

@@ -4,13 +4,12 @@ This module deploys a Storage Account.
 
 ## Navigation
 
-- [Resource Types](#resource-types)
-- [Usage examples](#usage-examples)
-- [Parameters](#parameters)
-- [Outputs](#outputs)
-- [Cross-referenced modules](#cross-referenced-modules)
-- [Notes](#notes)
-- [Data Collection](#data-collection)
+- [Resource Types](#Resource-Types)
+- [Usage examples](#Usage-examples)
+- [Parameters](#Parameters)
+- [Outputs](#Outputs)
+- [Notes](#Notes)
+- [Data Collection](#Data-Collection)
 
 ## Resource Types
 
@@ -40,24 +39,22 @@ This module deploys a Storage Account.
 The following section provides usage examples for the module, which were used to validate and deploy the module successfully. For a full reference, please review the module's test folder in its repository.
 
 >**Note**: Each example lists all the required parameters first, followed by the rest - each in alphabetical order.
+
 >**Note**: To reference the module, please use the following syntax `br/public:avm/res/storage/storage-account:<version>`.
 
-- [Deploying as a Blob Storage](#example-1-deploying-as-a-blob-storage)
-- [Deploying as a Block Blob Storage](#example-2-deploying-as-a-block-blob-storage)
-- [Using only changefeed configuration](#example-3-using-only-changefeed-configuration)
-- [Using only defaults](#example-4-using-only-defaults)
-- [Deploying with a key vault reference to save secrets](#example-5-deploying-with-a-key-vault-reference-to-save-secrets)
-- [Using large parameter set](#example-6-using-large-parameter-set)
-- [Deploying with a NFS File Share](#example-7-deploying-with-a-nfs-file-share)
-- [Using Customer-Managed-Keys with System-Assigned identity](#example-8-using-customer-managed-keys-with-system-assigned-identity)
-- [Using Customer-Managed-Keys with User-Assigned identity](#example-9-using-customer-managed-keys-with-user-assigned-identity)
-- [Deploying as Storage Account version 1](#example-10-deploying-as-storage-account-version-1)
-- [WAF-aligned](#example-11-waf-aligned)
+- [Blob](#example-1-blob)
+- [Block](#example-2-block)
+- [Changefeed](#example-3-changefeed)
+- [Defaults](#example-4-defaults)
+- [Kvsecrets](#example-5-kvsecrets)
+- [Max](#example-6-max)
+- [Nfs](#example-7-nfs)
+- [System-Assigned-Cmk-Encryption](#example-8-system-assigned-cmk-encryption)
+- [User-Assigned-Cmk-Encryption](#example-9-user-assigned-cmk-encryption)
+- [V1](#example-10-v1)
+- [Waf-Aligned](#example-11-waf-aligned)
 
-### Example 1: _Deploying as a Blob Storage_
-
-This instance deploys the module as a Blob Storage account.
-
+### Example 1: _Blob_
 
 <details>
 
@@ -128,10 +125,7 @@ param skuName = 'Standard_LRS'
 </details>
 <p>
 
-### Example 2: _Deploying as a Block Blob Storage_
-
-This instance deploys the module as a Premium Block Blob Storage account.
-
+### Example 2: _Block_
 
 <details>
 
@@ -202,10 +196,7 @@ param skuName = 'Premium_LRS'
 </details>
 <p>
 
-### Example 3: _Using only changefeed configuration_
-
-This instance deploys the module with the minimum set of required parameters for the changefeed configuration.
-
+### Example 3: _Changefeed_
 
 <details>
 
@@ -282,10 +273,7 @@ param location = '<location>'
 </details>
 <p>
 
-### Example 4: _Using only defaults_
-
-This instance deploys the module with the minimum set of required parameters.
-
+### Example 4: _Defaults_
 
 <details>
 
@@ -365,10 +353,7 @@ param networkAcls = {
 </details>
 <p>
 
-### Example 5: _Deploying with a key vault reference to save secrets_
-
-This instance deploys the module saving all its secrets in a key vault.
-
+### Example 5: _Kvsecrets_
 
 <details>
 
@@ -452,10 +437,7 @@ param secretsExportConfiguration = {
 </details>
 <p>
 
-### Example 6: _Using large parameter set_
-
-This instance deploys the module with most of its features enabled.
-
+### Example 6: _Max_
 
 <details>
 
@@ -1812,10 +1794,7 @@ param tags = {
 </details>
 <p>
 
-### Example 7: _Deploying with a NFS File Share_
-
-This instance deploys the module with a NFS File Share.
-
+### Example 7: _Nfs_
 
 <details>
 
@@ -1912,10 +1891,7 @@ param skuName = 'Premium_LRS'
 </details>
 <p>
 
-### Example 8: _Using Customer-Managed-Keys with System-Assigned identity_
-
-This instance deploys the module using Customer-Managed-Keys using a System-Assigned Identity. This required the service to be deployed twice, once as a pre-requisite to create the System-Assigned Identity, and once to use it for accessing the Customer-Managed-Key secret.
-
+### Example 8: _System-Assigned-Cmk-Encryption_
 
 <details>
 
@@ -2068,10 +2044,7 @@ param privateEndpoints = [
 </details>
 <p>
 
-### Example 9: _Using Customer-Managed-Keys with User-Assigned identity_
-
-This instance deploys the module using Customer-Managed-Keys using a User-Assigned Identity to access the Customer-Managed-Key secret.
-
+### Example 9: _User-Assigned-Cmk-Encryption_
 
 <details>
 
@@ -2247,10 +2220,7 @@ param privateEndpoints = [
 </details>
 <p>
 
-### Example 10: _Deploying as Storage Account version 1_
-
-This instance deploys the module as Storage Account version 1.
-
+### Example 10: _V1_
 
 <details>
 
@@ -2316,10 +2286,7 @@ param location = '<location>'
 </details>
 <p>
 
-### Example 11: _WAF-aligned_
-
-This instance deploys the module in alignment with the best-practices of the Azure Well-Architected Framework.
-
+### Example 11: _Waf-Aligned_
 
 <details>
 
@@ -4476,14 +4443,6 @@ Tags of the resource.
 | `serviceEndpoints` | object | All service endpoints of the deployed storage account, Note Standard_LRS and Standard_ZRS accounts only have a blob service endpoint. |
 | `systemAssignedMIPrincipalId` | string | The principal ID of the system assigned identity. |
 
-## Cross-referenced modules
-
-This section gives you an overview of all local-referenced module files (i.e., other modules that are referenced in this module) and all remote-referenced files (i.e., Bicep modules that are referenced from a Bicep Registry or Template Specs).
-
-| Reference | Type |
-| :-- | :-- |
-| `br/public:avm/res/network/private-endpoint:0.7.1` | Remote reference |
-
 ## Notes
 
 This is a generic module for deploying a Storage Account. Any customization for different storage needs (such as a diagnostic or other storage account) need to be done through the Archetype.
@@ -4493,14 +4452,4 @@ A list of supported resource types for the parameter ``networkAclsType.resourceA
 
 ## Data Collection
 
-The software may collect information about you and your use of the software and send it to Microsoft.
-Microsoft may use this information to provide services and improve our products and services.
-You may turn off the telemetry as described in the [repository](https://aka.ms/avm/telemetry).
-
-There are also some features in the software that may enable you and Microsoft to collect data from users
-of your applications.If you use these features,you must comply with applicable law,including providing
-appropriate notices to users of your applications together with a copy of Microsoft’s privacy statement.
-
-Our privacy statement is located at <https://go.microsoft.com/fwlink/?LinkID=824704>.You can learn more
-about data collection and use in the help documentation and our privacy statement.Your use of the software
-operates as your consent to these practices.
+The software may collect information about you and your use of the software and send it to Microsoft. Microsoft may use this information to provide services and improve our products and services. You may turn off the telemetry as described in the [repository](https://aka.ms/avm/telemetry). There are also some features in the software that may enable you and Microsoft to collect data from users of your applications. If you use these features, you must comply with applicable law, including providing appropriate notices to users of your applications together with a copy of Microsoft’s privacy statement. Our privacy statement is located at <https://go.microsoft.com/fwlink/?LinkID=824704>. You can learn more about data collection and use in the help documentation and our privacy statement. Your use of the software operates as your consent to these practices.
