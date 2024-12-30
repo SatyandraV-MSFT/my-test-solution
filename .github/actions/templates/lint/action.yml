@@ -11,28 +11,19 @@ inputs:
   validate_markdown:
     description: "Toggle markdown validation based on input"
     required: false
-    default: true
+    default: "true"
   validate_all_codebase:
     description: "Toggle codebase validation based on input"
     required: false
-    default: true
+    default: "true"
   disable_all_linters:
     description: "Toggle linter validation based on input"
     required: false
-    default: false
+    default: "false"
   validate_github_actions:
     description: "Toggle github actions validation based on input"
     required: false
-    default: true
-  node_version:
-    description: "Node.js version for linting setup"
-    required: false
-    default: "20"
-  disable_linters:
-    description: "Comma-separated list of linters to disable"
-    required: false
-    default: "ARM,NATURAL_LANGUAGE" # Default linters to disable
-
+    default: "true"
 runs:
   using: "composite"
   steps:
@@ -48,3 +39,4 @@ runs:
         VALIDATE_MARKDOWN: ${{ inputs.validate_markdown }}
         VALIDATE_GITHUB_ACTIONS: ${{ inputs.validate_github_actions }}
         VALIDATE_ALL_CODEBASE: ${{ inputs.validate_all_codebase }}
+        MARKDOWN_CONFIG_FILE: .github/linters/.markdownlint.json

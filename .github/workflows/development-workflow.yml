@@ -50,7 +50,7 @@ jobs:
           module_path: ${{ steps.define_inputs.outputs.module_path }}
           validate_all_codebase: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
-
+          
       - name: Run Pester Test
         id: Pester
         uses: ./.github/actions/templates/avm-validateModulePester
