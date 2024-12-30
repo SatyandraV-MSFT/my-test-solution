@@ -1,10 +1,14 @@
-name: "Remove Resource Group"
+name: "Remove Deployment Stack"
 description: "Clean up resources deployed for testing"
 
 inputs:
-  resource_group_name:
-    description: "Resource Group Name to remove"
+  module_name:
+    description: "Specify the module name (e.g., network/network-security-group)"
     required: true
+  namePrefix:
+    description: "Name prefix for the resources"
+    required: false
+    default: "prxsbx"
   azure_client_id:
     description: "Az Auth: Azure client ID"
     required: true
@@ -26,11 +30,21 @@ runs:
         subscription-id: ${{ inputs.azure_subscription_id }}
         enable-AzPSSession: true
 
-    - name: Cleanup Resource Group
+    - name: Cleanup Deployment Stack
       shell: pwsh
       run: |
-        $resourceGroupName = "${{ inputs.resource_group_name }}"
-        if ($resourceGroupName) {
-          Write-Output "Cleaning up Resource Group: $($resourceGroupName)"
-          az group delete --name $resourceGroupName --yes --no-wait
+        # Generate the resource group name
+        $moduleName = "${{ inputs.module_name }}" -replace '/', '-'
+        # $resourceGroupName = "dep-${{ inputs.namePrefix }}-$($moduleName)-tests-rg"
+        # Write-Output "Resource Group Name: $resourceGroupName"
+
+        # if ($resourceGroupName) {
+        #   Write-Output "Cleaning up Resource Group: $($resourceGroupName)"
+        #   az group delete --name $resourceGroupName --yes --no-wait
+        # } else { Write-Error "Resource group not found." }
+
+        $deploymentStackName = "dep-${{ inputs.namePrefix }}-$($moduleName)-tests-ds"
+        if ($deploymentStackName) {
+          Write-Output "Deleting Deployment Stack: $($deploymentStackName)"
+          az stack sub delete --name $deploymentStackName --action-on-unmanage deleteAll --yes --bypass-stack-out-of-sync-error
         } else { Write-Error "Resource group not found." }

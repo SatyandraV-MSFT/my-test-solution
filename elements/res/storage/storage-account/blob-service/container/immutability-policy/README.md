@@ -4,9 +4,9 @@ This module deploys a Storage Account Blob Container Immutability Policy.
 
 ## Navigation
 
-- [Resource Types](#Resource-Types)
-- [Parameters](#Parameters)
-- [Outputs](#Outputs)
+- [Resource Types](#resource-types)
+- [Parameters](#parameters)
+- [Outputs](#outputs)
 
 ## Resource Types
 
@@ -27,7 +27,7 @@ This module deploys a Storage Account Blob Container Immutability Policy.
 
 | Parameter | Type | Description |
 | :-- | :-- | :-- |
-| [`allowProtectedAppendWrites`](#parameter-allowprotectedappendwrites) | bool | This property can only be changed for unlocked time-based retention policies. When enabled, new blocks can be written to an append blob while maintaining immutability protection and compliance. Only new blocks can be added and any existing blocks cannot be modified or deleted. This property cannot be changed with ExtendImmutabilityPolicy API. |
+| [`allowProtectedAppendWrites`](#parameter-allowprotectedappendwrites) | bool | This property can only be changed for unlocked time-based retention policies. When enabled, new blocks can be written to an append blob while maintaining immutability protection and compliance.Only new blocks can be added and any  existing blocks cannot be modified or deleted.This property cannot be changed with ExtendImmutabilityPolicy API. |
 | [`allowProtectedAppendWritesAll`](#parameter-allowprotectedappendwritesall) | bool | This property can only be changed for unlocked time-based retention policies. When enabled, new blocks can be written to both "Append and Block Blobs" while maintaining immutability protection and compliance. Only new blocks can be added and any existing blocks cannot be modified or deleted. This property cannot be changed with ExtendImmutabilityPolicy API. The "allowProtectedAppendWrites" and "allowProtectedAppendWritesAll" properties are mutually exclusive. |
 | [`immutabilityPeriodSinceCreationInDays`](#parameter-immutabilityperiodsincecreationindays) | int | The immutability period for the blobs in the container since the policy creation, in days. |
 
@@ -55,7 +55,11 @@ This property can only be changed for unlocked time-based retention policies. Wh
 
 ### Parameter: `allowProtectedAppendWritesAll`
 
-This property can only be changed for unlocked time-based retention policies. When enabled, new blocks can be written to both "Append and Block Blobs" while maintaining immutability protection and compliance. Only new blocks can be added and any existing blocks cannot be modified or deleted. This property cannot be changed with ExtendImmutabilityPolicy API. The "allowProtectedAppendWrites" and "allowProtectedAppendWritesAll" properties are mutually exclusive.
+This property can only be changed for unlocked time-based retention policies.
+When enabled, new blocks can be written to both "Append and Block Blobs" while maintaining immutability protection and compliance.
+Only new blocks can be added and any existing blocks cannot be modified or deleted.
+This property cannot be changed with ExtendImmutabilityPolicy API.
+The "allowProtectedAppendWrites" and "allowProtectedAppendWritesAll" properties are mutually exclusive.
 
 - Required: No
 - Type: bool

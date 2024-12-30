@@ -46,12 +46,12 @@ runs:
     - name: Publish Bicep Modules
       shell: pwsh
       run: |
-        Write-Output "version tag: $($env:VERSION)"
+        Write-Output "New Patch version: ${{ inputs.version }}"
 
         # Find all main.bicep files in the specified directory structure
         Get-ChildItem -Path ${{ inputs.base_module_path }} -Recurse -Filter "main.bicep" | ForEach-Object {
             $bicepFile = $_.FullName
-            Write-Output "Publishing module at path: ${{ inputs.base_module_path }}"
+            Write-Output "Publishing module at path: ${{ inputs.base_module_path }} - Version: ${{ inputs.version }}"
 
             # Publish the Bicep file to ACR with the directory structure and version
             az bicep publish --file $bicepFile --target "br:${{ inputs.acr_name }}.azurecr.io/${{ inputs.base_module_path }}:${{ inputs.version }}" --force

@@ -1,4 +1,4 @@
-name: "Deploy Bicep Template"
+name: "Validate Bicep Template - What-IF"
 description: "Deploy a Bicep template to Azure and output the resource group name"
 
 inputs:
@@ -30,7 +30,6 @@ inputs:
     description: "Az Auth: Azure subscription ID"
     required: true
 
-
 runs:
   using: "composite"
   steps:
@@ -46,6 +45,10 @@ runs:
       id: validate_bicep
       shell: pwsh
       run: |
+        # Generate the resource group name
+        $resourceGroupName = "dep-${{ inputs.namePrefix }}-${{ inputs.region }}-rg"
+        Write-Output "Temp. Resource Group Name: $resourceGroupName"
+
         $templatePath = "${{ github.workspace }}/elements/res/${{ inputs.module_name }}/${{ inputs.test_subdir }}/${{ inputs.file_name }}"
         Write-Output "Validating Bicep template using path: $env:TEMPLATE_PATH"
-        az deployment sub create --location "${{ inputs.region }}" --template-file "$templatePath" --parameters namePrefix=${{ inputs.namePrefix }} --what-if
+        az deployment sub create --name $resourceGroupName --location "${{ inputs.region }}" --template-file "$templatePath" --parameters namePrefix=${{ inputs.namePrefix }} resourceGroupName=$resourceGroupName --what-if

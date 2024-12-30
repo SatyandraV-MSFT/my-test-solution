@@ -18,7 +18,7 @@ param resourceLocation string = deployment().location
 param serviceShort string = 'ssamin'
 
 @description('Optional. A token to inject into the name of each resource.')
-param namePrefix string = 'suv'
+param namePrefix string = 'prx'
 
 // ============ //
 // Dependencies //
@@ -51,3 +51,5 @@ module testDeployment '../../../main.bicep' = [
     }
   }
 ]
+
+output resourceGroupName string = resourceGroup.name

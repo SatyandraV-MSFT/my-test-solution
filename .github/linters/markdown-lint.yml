@@ -1,0 +1,34 @@
+---
+###########################
+###########################
+## Markdown Linter rules ##
+###########################
+###########################
+
+# Linter rules doc:
+# - https://github.com/DavidAnson/markdownlint
+#
+# Note:
+# To comment out a single error:
+#   <!-- markdownlint-disable -->
+#   any violations you want
+#   <!-- markdownlint-restore -->
+#
+
+###############
+# Rules by id #
+###############
+MD013:
+  line_length: 865 # Line length 80 is far too short
+MD034: true # Ordered list item prefix
+MD028: true # Allow inline HTML
+MD051: true # Emphasis used instead of a heading
+MD009: true
+MD051: true
+MD034: true
+MD028: true
+
+#################
+# Rules by tags #
+#################
+blank_lines: false # Error on blank lines

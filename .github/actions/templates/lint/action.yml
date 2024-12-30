@@ -11,7 +11,27 @@ inputs:
   validate_markdown:
     description: "Toggle markdown validation based on input"
     required: false
-    default: "true"
+    default: true
+  validate_all_codebase:
+    description: "Toggle codebase validation based on input"
+    required: false
+    default: true
+  disable_all_linters:
+    description: "Toggle linter validation based on input"
+    required: false
+    default: false
+  validate_github_actions:
+    description: "Toggle github actions validation based on input"
+    required: false
+    default: true
+  node_version:
+    description: "Node.js version for linting setup"
+    required: false
+    default: "20"
+  disable_linters:
+    description: "Comma-separated list of linters to disable"
+    required: false
+    default: "ARM,NATURAL_LANGUAGE" # Default linters to disable
 
 runs:
   using: "composite"
@@ -19,25 +39,12 @@ runs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
-        ref: ${{ github.head_ref }}
+        fetch-depth: 0
 
-    - name: Set dynamic path for linting
-      shell: bash
-      run: |
-        MODULE_PATH="${{ inputs.module_path }}"
-        echo "Module path for linting: $MODULE_PATH"
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: "20"
-
-    - name: Lint Codebase with Super Linter
-      uses: github/super-linter@v5
+    - name: Super-linter
+      uses: super-linter/super-linter@v7.2.1
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
-        VALIDATE_ALL_CODEBASE: true # Validate the entire codebase
-        DISABLE_ALL_LINTERS: false # Enable all linters by default
-        DISABLE_LINTERS: "ARM,NATURAL_LANGUAGE" # Disable only ARM and Natural Language linters
-        VALIDATE_MARKDOWN: ${{ inputs.validate_markdown }} # Enable Markdown validation based on input
-        VALIDATE_GITHUB_ACTIONS: true # Enable GitHub Actions linter
+        VALIDATE_MARKDOWN: ${{ inputs.validate_markdown }}
+        VALIDATE_GITHUB_ACTIONS: ${{ inputs.validate_github_actions }}
+        VALIDATE_ALL_CODEBASE: ${{ inputs.validate_all_codebase }}

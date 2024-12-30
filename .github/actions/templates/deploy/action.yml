@@ -30,11 +30,6 @@ inputs:
     description: "Az Auth: Azure subscription ID"
     required: true
 
-outputs:
-  deployed_rg_name:
-    description: "The name of the deployed resource group"
-    value: ${{ steps.deploy_bicep_task.outputs.moduleTestFilePaths }}
-
 runs:
   using: "composite"
   steps:
@@ -51,21 +46,20 @@ runs:
       shell: pwsh
       run: |
         $templatePath = "${{ github.workspace }}/elements/res/${{ inputs.module_name }}/${{ inputs.test_subdir }}/${{ inputs.file_name }}"
-        Write-Output "Deploying Bicep template using path: $($templatePath)"
-        $deploymentOutput = az deployment sub create --location "${{ inputs.region }}" --template-file "$templatePath" --parameters namePrefix=${{ inputs.namePrefix }}
-        
-        $RESOURCE_GROUP_NAME = ($deploymentOutput | ConvertFrom-Json).properties.parameters.resourceGroupName.value
+        Write-Output "Deploying Az Stack - Bicep template: $($templatePath)"
+        # Generate the resource group name
+        $moduleName = "${{ inputs.module_name }}" -replace '/', '-'
+        $resourceGroupName = "dep-${{ inputs.namePrefix }}-$($moduleName)-tests-rg"
+        Write-Output "Resource Group Name: $resourceGroupName"
+
+        # $deploymentOutput = az deployment sub create --location "${{ inputs.region }}" --template-file "$templatePath" --parameters namePrefix=${{ inputs.namePrefix }} resourceGroupName=$resourceGroupName
+
+        $deploymentStackName = "dep-${{ inputs.namePrefix }}-$($moduleName)-tests-ds"
+        Write-Output "Deployment Stack Name: $deploymentStackName"
+        $deployment = az stack sub create --name "$($deploymentStackName)" --template-file "$templatePath" --parameters namePrefix=${{ inputs.namePrefix }} --location "${{ inputs.region }}" --description "${{ inputs.region }}" --deny-settings-mode None --action-on-unmanage deleteAll --yes
 
         if ($LASTEXITCODE -ne 0) {
           Write-Error "Deployment command failed."
-          exit 1
-        }
-
-        if ($RESOURCE_GROUP_NAME) {
-          Write-Output "Deployed Resource Group Name: $RESOURCE_GROUP_NAME"
-          Write-Output ('{0}={1}' -f 'deployed_rg_name', $RESOURCE_GROUP_NAME) >> $env:GITHUB_OUTPUT
-        } else {
-          Write-Error "Deployment failed, no Resource Group created."
           exit 1
         }
 

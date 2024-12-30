@@ -6,7 +6,7 @@ on:
       remove_deployment:
         type: boolean
         description: "Remove Deployment"
-        required: false
+        required: true
         default: true
 
 permissions:
@@ -20,9 +20,47 @@ env:
   elementsRootFolder: "elements/res"
 
 jobs:
-  validate:
+  Code-Quality:
     runs-on: ubuntu-latest
-    if: ${{ startsWith(github.ref_name, 'ci/') == false }}
+    environment: sandbox
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Define Inputs
+        id: define_inputs
+        shell: pwsh
+        run: |
+          # Split the branch name into module name and version
+          $moduleParts = "${{ github.ref_name }}" -split '/'
+          # Module name
+          $moduleName = "$($moduleParts[0])/$($moduleParts[1])"
+          # Module path
+          $modulePath = "elements/res/$moduleName"
+          # Set the outputs
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "module_name=$moduleName"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "module_path=$modulePath"
+
+      - name: Run SuperLinter Code
+        id: lint_code
+        uses: ./.github/actions/templates/lint
+        with:
+          module_path: ${{ steps.define_inputs.outputs.module_path }}
+          validate_all_codebase: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run Pester Test
+        id: Pester
+        uses: ./.github/actions/templates/avm-validateModulePester
+        with:
+          modulePath: ${{ steps.define_inputs.outputs.module_path }}
+
+  Validate-Deployment:
+    needs:
+      - Code-Quality
+    runs-on: ubuntu-latest
     environment: sandbox
     steps:
       - name: Checkout the feature branch
@@ -38,7 +76,7 @@ jobs:
           # Module name
           $moduleName = "$($moduleParts[0])/$($moduleParts[1])"
           # Set the outputs
-          echo "::set-output name=module_name::$moduleName"
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "module_name=$moduleName"
       - name: validate Bicep Test E2E Defaults
         id: validate_bicep
         uses: ./.github/actions/templates/validate
@@ -52,11 +90,10 @@ jobs:
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-  deploy:
+  Deploy-Deployment:
     needs:
-      - validate
+      - Validate-Deployment
     runs-on: ubuntu-latest
-    if: ${{ startsWith(github.ref_name, 'ci/') == false }}
     environment: sandbox
     steps:
       - name: Checkout the feature branch
@@ -72,8 +109,8 @@ jobs:
           # Module name
           $moduleName = "$($moduleParts[0])/$($moduleParts[1])"
           # Set the outputs
-          echo "::set-output name=module_name::$moduleName"
-      - name: Deploy Bicep Test E2E Defaults
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "module_name=$moduleName"
+      - name: Create Deployment Stack - tests/e2e/defaults
         id: deploy_bicep
         uses: ./.github/actions/templates/deploy
         with:
@@ -86,12 +123,12 @@ jobs:
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
           azure_subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-  Removal:
-    if: ${{ inputs.remove_deployment == true && startsWith(github.ref_name, 'ci/') == false }}
+  Remove-Deployment:
+    if: ${{ inputs.remove_deployment == true }}
     needs:
-      - deploy
+      - Deploy-Deployment
     runs-on: ubuntu-latest
-    environment: sandbox 
+    environment: sandbox
     steps:
       - name: Checkout the feature branch
         uses: actions/checkout@v4
@@ -106,8 +143,8 @@ jobs:
           # Module name
           $moduleName = "$($moduleParts[0])/$($moduleParts[1])"
           # Set the outputs
-          echo "::set-output name=module_name::$moduleName"
-      - name: Remove Deployment
+          Add-Content -Path $env:GITHUB_OUTPUT -Value "module_name=$moduleName"
+      - name: Remove Deployment Stack
         uses: ./.github/actions/templates/remove
         with:
           module_name: ${{ steps.define_inputs.outputs.module_name }}
