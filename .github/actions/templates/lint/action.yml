@@ -39,4 +39,4 @@ runs:
         VALIDATE_MARKDOWN: ${{ inputs.validate_markdown }}
         VALIDATE_GITHUB_ACTIONS: ${{ inputs.validate_github_actions }}
         VALIDATE_ALL_CODEBASE: ${{ inputs.validate_all_codebase }}
-        MARKDOWN_LINTER_RULES: .github/linters/.markdownlint.json
+        MARKDOWN_LINTER_RULES: .github/linters/markdown-lint.yml

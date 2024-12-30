@@ -10,7 +10,7 @@
 #
 # Note:
 # To comment out a single error:
-#   <!-- markdownlint-disable -->
+<!-- markdownlint-disable MD051 -->
 #   any violations you want
 #   <!-- markdownlint-restore -->
 #
@@ -18,14 +18,14 @@
 ###############
 # Rules by id #
 ###############
-MD013:
-  line_length: 865 # Line length 80 is far too short
-MD034: false # Ordered list item prefix
-MD028: false # Allow inline HTML
-MD009: false
-MD051/link-fragments: false
+# MD013:
+#   line_length: 865 # Line length 80 is far too short
+# MD034: false # Ordered list item prefix
+# MD028: false # Allow inline HTML
+# MD009: false
+# MD051/link-fragments: false
 
 #################
 # Rules by tags #
 #################
-blank_lines: false # Error on blank lines
+# blank_lines: false # Error on blank lines
