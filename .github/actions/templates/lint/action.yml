@@ -33,7 +33,7 @@ runs:
         fetch-depth: 0
 
     - name: Super-linter
-      uses: super-linter/super-linter@v7.2.1
+      uses: super-linter/super-linter@v7
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         VALIDATE_MARKDOWN: ${{ inputs.validate_markdown }}
